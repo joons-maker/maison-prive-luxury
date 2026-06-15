@@ -71,13 +71,67 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Gold hero sweep ──────────────────────────── */
+@keyframes goldSweep {
+  0%   { transform: translateX(-130%) rotate(-12deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.9; }
+  100% { transform: translateX(240%) rotate(-12deg); opacity: 0; }
+}
+
+.lux-hero-sweep {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 30%;
+  height: 140%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(201,169,110,0.045) 50%,
+    transparent 80%
+  );
+  pointer-events: none;
+  animation: goldSweep 9s cubic-bezier(0.4,0,0.6,1) infinite;
+  animation-delay: 1.8s;
+}
+
+/* ─── Button shine on hover ────────────────────── */
+@keyframes btnShine {
+  from { left: -80%; }
+  to   { left: 160%; }
+}
+
+.lux-btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.lux-btn-shine::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.16),
+    transparent
+  );
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+.lux-btn-shine:hover::after {
+  animation: btnShine 0.52s ease forwards;
+}
+
 /* ─── Brands marquee ──────────────────────────── */
 .lux-marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 38s linear infinite;
+  animation: marquee 42s linear infinite;
 }
-.lux-marquee-track:hover { animation-play-state: paused; }
+.lux-marquee-track:hover { animation-duration: 100s; }
 
 /* ─── Credential numbers ──────────────────────── */
 .lux-credential-item {

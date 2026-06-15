@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import FadeUp from "@/components/FadeUp";
+import ProcessSteps from "@/components/ProcessSteps";
 
 /* ── Data ─────────────────────────────────────────────────── */
 const BRANDS = [
@@ -74,13 +76,6 @@ const credentials = [
   { num: "Invitation", label: "Only",              sub: "소수 VIP 고객 전용" },
 ];
 
-const steps = [
-  { num: "01", title: "Request",  desc: "비공개 폼으로 원하는 제품을 접수합니다." },
-  { num: "02", title: "Verify",   desc: "현지 파트너가 재고를 직접 확인합니다." },
-  { num: "03", title: "Quote",    desc: "모든 비용 포함 투명한 견적을 발송합니다." },
-  { num: "04", title: "Source",   desc: "공식 부티크에서 직접 구매를 진행합니다." },
-  { num: "05", title: "Deliver",  desc: "보험 처리된 국제 특송으로 전달됩니다." },
-];
 
 const clientProfile = [
   { label: "European Family Network",          text: "파리와 밀라노에 오랜 시간 구축된 현지 파트너 네트워크로 연결합니다." },
@@ -129,6 +124,8 @@ export default function Home() {
         <div style={{ position:"absolute", right:"clamp(1.5rem,7vw,7rem)", top:"12%", bottom:"12%",
           width:"1px", background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.2),transparent)",
           pointerEvents:"none" }} />
+        {/* Gold light sweep */}
+        <div className="lux-hero-sweep" />
 
         {/* Content */}
         <div style={{ position:"relative", maxWidth:"960px" }}>
@@ -175,7 +172,7 @@ export default function Home() {
 
           <div style={{ display:"flex", gap:"1rem", justifyContent:"center",
             flexWrap:"wrap", animation:"fadeInUp 0.8s ease-out 0.8s both" }}>
-            <Link href="/request" style={{ textDecoration:"none",
+            <Link href="/request" className="lux-btn-shine" style={{ textDecoration:"none",
               background:"#c9a96e", color:"#0a0a0a",
               padding:"1.15rem 3.2rem", fontSize:"0.71rem",
               letterSpacing:"0.26em", fontWeight:600 }}>
@@ -232,14 +229,16 @@ export default function Home() {
       <section style={{ borderBottom:"1px solid rgba(201,169,110,0.07)", background:"#0d0d0b" }}>
         <div style={{ maxWidth:"1280px", margin:"0 auto",
           display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))" }}>
-          {trustItems.map(t => (
-            <div key={t.en} className="lux-trust-item">
-              <div style={{ fontSize:"0.85rem", color:"#c9a96e", marginBottom:"0.9rem" }}>{t.symbol}</div>
-              <div style={{ fontSize:"0.59rem", letterSpacing:"0.24em", color:"#c9a96e", marginBottom:"0.7rem" }}>
-                {t.en.toUpperCase()}
+          {trustItems.map((t, i) => (
+            <FadeUp key={t.en} delay={i * 120}>
+              <div className="lux-trust-item">
+                <div style={{ fontSize:"0.85rem", color:"#c9a96e", marginBottom:"0.9rem" }}>{t.symbol}</div>
+                <div style={{ fontSize:"0.59rem", letterSpacing:"0.24em", color:"#c9a96e", marginBottom:"0.7rem" }}>
+                  {t.en.toUpperCase()}
+                </div>
+                <p style={{ fontSize:"0.8rem", color:"#444440", lineHeight:1.9 }}>{t.ko}</p>
               </div>
-              <p style={{ fontSize:"0.8rem", color:"#444440", lineHeight:1.9 }}>{t.ko}</p>
-            </div>
+            </FadeUp>
           ))}
         </div>
       </section>
@@ -249,26 +248,27 @@ export default function Home() {
         <div style={{ maxWidth:"1280px", margin:"0 auto",
           display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))" }}>
           {credentials.map((c, i) => (
-            <div key={c.num} className="lux-credential-item"
-              style={{ animationDelay:`${i * 0.12}s` }}>
-              <div style={{ fontFamily:"Georgia,serif", fontSize:"1.2rem",
-                color:"#c9a96e", letterSpacing:"0.04em", marginBottom:"0.15rem" }}>
-                {c.num}
+            <FadeUp key={c.num} delay={i * 110}>
+              <div className="lux-credential-item">
+                <div style={{ fontFamily:"Georgia,serif", fontSize:"1.2rem",
+                  color:"#c9a96e", letterSpacing:"0.04em", marginBottom:"0.15rem" }}>
+                  {c.num}
+                </div>
+                <div style={{ fontSize:"0.6rem", letterSpacing:"0.2em", color:"#555550",
+                  marginBottom:"0.6rem" }}>
+                  {c.label.toUpperCase()}
+                </div>
+                <div style={{ width:"24px", height:"1px",
+                  background:"rgba(201,169,110,0.25)", margin:"0 auto 0.6rem" }} />
+                <p style={{ fontSize:"0.65rem", color:"#2e2e28", letterSpacing:"0.06em" }}>{c.sub}</p>
               </div>
-              <div style={{ fontSize:"0.6rem", letterSpacing:"0.2em", color:"#555550",
-                marginBottom:"0.6rem" }}>
-                {c.label.toUpperCase()}
-              </div>
-              <div style={{ width:"24px", height:"1px",
-                background:"rgba(201,169,110,0.25)", margin:"0 auto 0.6rem" }} />
-              <p style={{ fontSize:"0.65rem", color:"#2e2e28", letterSpacing:"0.06em" }}>{c.sub}</p>
-            </div>
+            </FadeUp>
           ))}
         </div>
       </section>
 
       {/* ── Brand Statement ─────────────────────────────── */}
-      <section style={{ maxWidth:"900px", margin:"7rem auto", padding:"0 2rem", textAlign:"center" }}>
+      <FadeUp style={{ maxWidth:"900px", margin:"7rem auto", padding:"0 2rem", textAlign:"center" }}>
         <div style={{ fontSize:"0.56rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"2rem" }}>
           WHO WE ARE
         </div>
@@ -320,7 +320,7 @@ export default function Home() {
           <div style={{ width:"1px", height:"50px", background:"linear-gradient(to bottom,rgba(201,169,110,0.45),transparent)" }} />
           <div style={{ width:"5px", height:"5px", border:"1px solid rgba(201,169,110,0.35)", transform:"rotate(45deg)" }} />
         </div>
-      </section>
+      </FadeUp>
 
       {/* ── Services ────────────────────────────────────── */}
       <section style={{ maxWidth:"1280px", margin:"0 auto 7rem", padding:"0 2rem" }}>
@@ -339,26 +339,28 @@ export default function Home() {
 
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(330px,1fr))",
           gap:"1px", background:"rgba(201,169,110,0.05)" }}>
-          {services.map(s => (
-            <div key={s.num} className="lux-service-card">
-              <div style={{ position:"absolute", top:"1.5rem", right:"2rem",
-                fontFamily:"Georgia,serif", fontSize:"4rem",
-                color:"rgba(201,169,110,0.04)", fontWeight:700,
-                lineHeight:1, userSelect:"none", pointerEvents:"none" }}>
-                {s.num}
+          {services.map((s, i) => (
+            <FadeUp key={s.num} delay={i * 80}>
+              <div className="lux-service-card">
+                <div style={{ position:"absolute", top:"1.5rem", right:"2rem",
+                  fontFamily:"Georgia,serif", fontSize:"4rem",
+                  color:"rgba(201,169,110,0.04)", fontWeight:700,
+                  lineHeight:1, userSelect:"none", pointerEvents:"none" }}>
+                  {s.num}
+                </div>
+                <div style={{ fontSize:"1.05rem", color:"#c9a96e", opacity:0.75, marginBottom:"1.5rem" }}>{s.symbol}</div>
+                <div style={{ fontSize:"0.55rem", letterSpacing:"0.22em",
+                  color:"rgba(201,169,110,0.4)", marginBottom:"0.8rem" }}>
+                  {s.tag}
+                </div>
+                <h3 style={{ fontFamily:"Georgia,serif", fontSize:"1.08rem",
+                  color:"#f5f0e8", fontWeight:400, marginBottom:"0.3rem" }}>
+                  {s.title}
+                </h3>
+                <div style={{ fontSize:"0.68rem", color:"#555550", marginBottom:"1.3rem" }}>{s.subtitle}</div>
+                <p style={{ fontSize:"0.79rem", color:"#454540", lineHeight:2 }}>{s.desc}</p>
               </div>
-              <div style={{ fontSize:"1.05rem", color:"#c9a96e", opacity:0.75, marginBottom:"1.5rem" }}>{s.symbol}</div>
-              <div style={{ fontSize:"0.55rem", letterSpacing:"0.22em",
-                color:"rgba(201,169,110,0.4)", marginBottom:"0.8rem" }}>
-                {s.tag}
-              </div>
-              <h3 style={{ fontFamily:"Georgia,serif", fontSize:"1.08rem",
-                color:"#f5f0e8", fontWeight:400, marginBottom:"0.3rem" }}>
-                {s.title}
-              </h3>
-              <div style={{ fontSize:"0.68rem", color:"#555550", marginBottom:"1.3rem" }}>{s.subtitle}</div>
-              <p style={{ fontSize:"0.79rem", color:"#454540", lineHeight:2 }}>{s.desc}</p>
-            </div>
+            </FadeUp>
           ))}
         </div>
 
@@ -387,43 +389,12 @@ export default function Home() {
             </h2>
           </div>
 
-          <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center" }}>
-            {steps.map((step, i) => (
-              <div key={step.num} style={{ flex:"1 1 160px", maxWidth:"220px",
-                padding:"2rem 1.5rem", textAlign:"center", position:"relative" }}>
-                {i < steps.length - 1 && (
-                  <div style={{ position:"absolute", top:"2.75rem", right:"-10px",
-                    color:"rgba(201,169,110,0.18)", fontSize:"0.85rem", zIndex:1 }}>→</div>
-                )}
-                <div style={{ width:"52px", height:"52px",
-                  border:"1px solid rgba(201,169,110,0.22)",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  margin:"0 auto 1.3rem",
-                  fontFamily:"Georgia,serif", fontSize:"0.82rem",
-                  color:"#c9a96e", letterSpacing:"0.06em" }}>
-                  {step.num}
-                </div>
-                <div style={{ fontSize:"0.62rem", letterSpacing:"0.22em",
-                  color:"#c9a96e", marginBottom:"0.8rem" }}>
-                  {step.title.toUpperCase()}
-                </div>
-                <p style={{ fontSize:"0.73rem", color:"#3a3a35", lineHeight:1.85 }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ textAlign:"center", marginTop:"4.5rem" }}>
-            <Link href="/process" style={{ textDecoration:"none",
-              fontSize:"0.66rem", letterSpacing:"0.24em",
-              color:"#484840", borderBottom:"1px solid rgba(201,169,110,0.15)", paddingBottom:"2px" }}>
-              FULL PROCESS DETAILS →
-            </Link>
-          </div>
+          <ProcessSteps />
         </div>
       </section>
 
       {/* ── Final CTA ───────────────────────────────────── */}
-      <section style={{ maxWidth:"820px", margin:"7rem auto", padding:"0 2rem", textAlign:"center" }}>
+      <FadeUp style={{ maxWidth:"820px", margin:"7rem auto", padding:"0 2rem", textAlign:"center" }}>
         <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center", marginBottom:"4.5rem" }}>
           <div style={{ flex:1, maxWidth:"100px", height:"1px",
             background:"linear-gradient(to right,transparent,rgba(201,169,110,0.4))" }} />
@@ -470,7 +441,7 @@ export default function Home() {
             ))}
           </div>
 
-          <Link href="/request" style={{ textDecoration:"none",
+          <Link href="/request" className="lux-btn-shine" style={{ textDecoration:"none",
             display:"inline-block", background:"#c9a96e", color:"#0a0a0a",
             padding:"1.2rem 4rem", fontSize:"0.71rem",
             letterSpacing:"0.28em", fontWeight:600 }}>
@@ -485,7 +456,7 @@ export default function Home() {
           <div style={{ width:"28px", height:"1px",
             background:"linear-gradient(to left,transparent,rgba(201,169,110,0.25))" }} />
         </div>
-      </section>
+      </FadeUp>
 
       <Footer />
     </>

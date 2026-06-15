@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import FadeUp from "@/components/FadeUp";
 
 const inp: React.CSSProperties = {
   width:"100%", background:"#0e0e0c",
@@ -272,7 +273,7 @@ export default function RequestPage() {
       </section>
 
       {/* ── Concierge Promise ─────────────────────────── */}
-      <section style={{ maxWidth:"760px", margin:"0 auto 3rem", padding:"0 2rem" }}>
+      <FadeUp style={{ maxWidth:"760px", margin:"0 auto 3rem", padding:"0 2rem" }}>
         <div style={{ border:"1px solid rgba(201,169,110,0.1)", background:"#0d0d0b",
           padding:"2.5rem 3rem", position:"relative" }}>
           {/* corner marks */}
@@ -307,9 +308,9 @@ export default function RequestPage() {
             ))}
           </div>
         </div>
-      </section>
+      </FadeUp>
 
-      <section style={{ maxWidth:"760px", margin:"0 auto 10rem", padding:"0 2rem" }}>
+      <FadeUp delay={80} style={{ maxWidth:"760px", margin:"0 auto 10rem", padding:"0 2rem" }}>
         {state === "error" && (
           <div style={{ marginBottom:"1.5rem", padding:"1rem 1.5rem",
             background:"rgba(239,68,68,0.06)", border:"1px solid rgba(239,68,68,0.2)",
@@ -518,7 +519,7 @@ export default function RequestPage() {
           marginTop:"2.5rem", lineHeight:1.9 }}>
           본 서비스는 공식 브랜드 대리점이 아닌 프라이빗 소싱 컨시어지 서비스입니다.
         </p>
-      </section>
+      </FadeUp>
 
       <style>{`
         @keyframes fadeInCard {
