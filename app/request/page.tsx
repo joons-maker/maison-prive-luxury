@@ -114,6 +114,29 @@ export default function RequestPage() {
   const [uploading, setUploading] = useState(false);
   const [submittedId, setSubmittedId] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  /* ── VIP Preference state ── */
+  const [prefs, setPrefs] = useState({
+    preferred_brands:    "",
+    preferred_colors:    "",
+    preferred_size:      "",
+    budget_range_detail: "",
+    preferred_region:    "any",
+    purchase_purpose:    "Personal Collection",
+    contact_preference:  "KakaoTalk",
+    vip_grade:           "Private",
+  });
+
+  /* ── Wishlist state (3 slots) ── */
+  const [wishlist, setWishlist] = useState([
+    { brand:"", product_name:"", color_size:"", memo:"" },
+    { brand:"", product_name:"", color_size:"", memo:"" },
+    { brand:"", product_name:"", color_size:"", memo:"" },
+  ]);
+
+  const setWishlistItem = (idx: number, field: string, value: string) =>
+    setWishlist(p => p.map((w, i) => i === idx ? { ...w, [field]: value } : w));
+
   const [form, setForm] = useState({
     name:"", phone:"", kakao_id:"", email:"",
     brand:"", product_name:"", budget:"",
@@ -146,6 +169,7 @@ export default function RequestPage() {
     if (uploading) { alert("이미지 업로드가 완료될 때까지 기다려주세요."); return; }
     setState("submitting"); setErrMsg("");
     try {
+      const filteredWishlist = wishlist.filter(w => w.brand.trim() && w.product_name.trim());
       const res = await fetch("/api/requests", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
@@ -153,6 +177,9 @@ export default function RequestPage() {
           ...form,
           product_image_urls: imageUrl ? [imageUrl] : [],
           invitation_code: form.invitation_code.trim() || undefined,
+          preferences: Object.values(prefs).some(v => v && v !== "any" && v !== "Personal Collection" && v !== "KakaoTalk" && v !== "Private")
+            ? prefs : undefined,
+          wishlist_items: filteredWishlist.length > 0 ? filteredWishlist : undefined,
         }),
       });
       const j = await res.json();
@@ -530,6 +557,141 @@ export default function RequestPage() {
                 name="message" value={form.message} onChange={set}
                 placeholder="원하시는 컬러, 사이즈, 하드웨어 옵션, 특이 사항 등을 자유롭게 적어주세요." />
             </Field>
+          </div>
+
+          {/* ── 05 · VIP PREFERENCE PROFILE ────────────────── */}
+          <div className="lux-form-section">
+            <SecHead num="05" title="VIP PREFERENCE PROFILE" sub="선호 정보 · 선택 사항" />
+            <div style={{ padding:"0.8rem 1.2rem", background:"rgba(201,169,110,0.03)",
+              border:"1px solid rgba(201,169,110,0.08)", marginBottom:"1.8rem" }}>
+              <p style={{ fontSize:"0.68rem", color:"#333330", lineHeight:1.85 }}>
+                선호 정보를 입력하시면 더욱 정확한 소싱 서비스를 제공드릴 수 있습니다. 모든 항목은 선택 사항입니다.
+              </p>
+            </div>
+
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem", marginBottom:"1.2rem" }}>
+              <Field label="선호 브랜드 (복수 입력 가능)">
+                <input className="lux-input" style={inp} value={prefs.preferred_brands}
+                  onChange={e => setPrefs(p => ({ ...p, preferred_brands: e.target.value }))}
+                  placeholder="예: Hermès, Chanel, Dior" />
+              </Field>
+              <Field label="선호 색상">
+                <input className="lux-input" style={inp} value={prefs.preferred_colors}
+                  onChange={e => setPrefs(p => ({ ...p, preferred_colors: e.target.value }))}
+                  placeholder="예: Noir, Blanc, Étoupe" />
+              </Field>
+              <Field label="선호 사이즈">
+                <input className="lux-input" style={inp} value={prefs.preferred_size}
+                  onChange={e => setPrefs(p => ({ ...p, preferred_size: e.target.value }))}
+                  placeholder="예: 25, 30, M" />
+              </Field>
+              <Field label="상세 예산 (선택)">
+                <input className="lux-input" style={inp} value={prefs.budget_range_detail}
+                  onChange={e => setPrefs(p => ({ ...p, budget_range_detail: e.target.value }))}
+                  placeholder="예: €3,000–€5,000" />
+              </Field>
+            </div>
+
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem" }}>
+              <Field label="선호 소싱 지역">
+                <div style={{ position:"relative" }}>
+                  <select className="lux-input" style={sel} value={prefs.preferred_region}
+                    onChange={e => setPrefs(p => ({ ...p, preferred_region: e.target.value }))}>
+                    <option value="any">Any European Network</option>
+                    <option value="Paris">Paris</option>
+                    <option value="Milan">Milan</option>
+                    <option value="Rome">Rome</option>
+                  </select>
+                  <span style={{ position:"absolute", right:"1rem", top:"50%", transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+                </div>
+              </Field>
+              <Field label="구매 목적">
+                <div style={{ position:"relative" }}>
+                  <select className="lux-input" style={sel} value={prefs.purchase_purpose}
+                    onChange={e => setPrefs(p => ({ ...p, purchase_purpose: e.target.value }))}>
+                    <option value="Personal Collection">Personal Collection</option>
+                    <option value="Gift">Gift</option>
+                    <option value="Investment Piece">Investment Piece</option>
+                    <option value="Special Occasion">Special Occasion</option>
+                  </select>
+                  <span style={{ position:"absolute", right:"1rem", top:"50%", transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+                </div>
+              </Field>
+              <Field label="연락 선호 방식">
+                <div style={{ position:"relative" }}>
+                  <select className="lux-input" style={sel} value={prefs.contact_preference}
+                    onChange={e => setPrefs(p => ({ ...p, contact_preference: e.target.value }))}>
+                    <option value="KakaoTalk">KakaoTalk</option>
+                    <option value="Email">Email</option>
+                    <option value="Phone">Phone</option>
+                  </select>
+                  <span style={{ position:"absolute", right:"1rem", top:"50%", transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+                </div>
+              </Field>
+              <Field label="VIP 등급">
+                <div style={{ position:"relative" }}>
+                  <select className="lux-input" style={sel} value={prefs.vip_grade}
+                    onChange={e => setPrefs(p => ({ ...p, vip_grade: e.target.value }))}>
+                    <option value="Private">Private</option>
+                    <option value="Invited">Invited</option>
+                    <option value="Black">Black</option>
+                    <option value="Founder">Founder</option>
+                  </select>
+                  <span style={{ position:"absolute", right:"1rem", top:"50%", transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+                </div>
+              </Field>
+            </div>
+          </div>
+
+          {/* ── 06 · PRIVATE WISHLIST ───────────────────────── */}
+          <div className="lux-form-section">
+            <SecHead num="06" title="PRIVATE WISHLIST" sub="희망 제품 목록 · 최대 3개 · 선택 사항" />
+            <div style={{ padding:"0.8rem 1.2rem", background:"rgba(201,169,110,0.03)",
+              border:"1px solid rgba(201,169,110,0.08)", marginBottom:"1.8rem" }}>
+              <p style={{ fontSize:"0.68rem", color:"#333330", lineHeight:1.85 }}>
+                이번 문의 제품 외에 관심 있으신 제품을 최대 3개까지 등록하실 수 있습니다.
+                등록된 제품은 담당 컨시어지가 현지 확인 시 함께 체크해 드립니다.
+              </p>
+            </div>
+
+            <div style={{ display:"grid", gap:"1.2rem" }}>
+              {wishlist.map((item, idx) => (
+                <div key={idx} style={{
+                  padding:"1.4rem 1.6rem",
+                  border:"1px solid rgba(201,169,110,0.08)",
+                  background:"#0a0a08", position:"relative",
+                }}>
+                  <div style={{ fontSize:"0.5rem", letterSpacing:"0.3em", color:"rgba(201,169,110,0.4)",
+                    marginBottom:"1.1rem" }}>WISHLIST 0{idx + 1}</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:"0.9rem" }}>
+                    <Field label="브랜드">
+                      <input className="lux-input" style={inp}
+                        value={item.brand}
+                        onChange={e => setWishlistItem(idx, "brand", e.target.value)}
+                        placeholder="예: Chanel" />
+                    </Field>
+                    <Field label="제품명">
+                      <input className="lux-input" style={inp}
+                        value={item.product_name}
+                        onChange={e => setWishlistItem(idx, "product_name", e.target.value)}
+                        placeholder="예: Classic Flap Medium" />
+                    </Field>
+                    <Field label="색상 / 사이즈">
+                      <input className="lux-input" style={inp}
+                        value={item.color_size}
+                        onChange={e => setWishlistItem(idx, "color_size", e.target.value)}
+                        placeholder="예: Beige · Medium" />
+                    </Field>
+                    <Field label="메모 (선택)">
+                      <input className="lux-input" style={inp}
+                        value={item.memo}
+                        onChange={e => setWishlistItem(idx, "memo", e.target.value)}
+                        placeholder="특이사항" />
+                    </Field>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Privacy & submit */}

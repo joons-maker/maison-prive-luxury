@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseClient } from "@/lib/supabase";
+import { getVipData } from "@/lib/vip-features";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
   }
 
   const paymentVisible = ["requested", "paid"].includes(data.payment_status ?? "");
+  const vip = await getVipData(data.id).catch(() => ({ preferences: null, wishlist: [], evidence: null }));
 
   return NextResponse.json({
     id:           data.id,
@@ -40,5 +42,8 @@ export async function GET(req: NextRequest) {
       payment_due_date:     data.payment_due_date,
       payment_note:         data.payment_note,
     } : {}),
+    preferences: vip.preferences,
+    wishlist:    vip.wishlist,
+    evidence:    vip.evidence,
   });
 }

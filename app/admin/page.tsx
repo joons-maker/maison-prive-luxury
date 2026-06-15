@@ -2,6 +2,11 @@
 import { useState, useEffect, useCallback } from "react";
 import type { LuxuryRequest, RequestStatus, Priority, PaymentStatus } from "@/lib/luxury-requests";
 import { STATUS_LABELS, STATUS_COLORS, getRequestPriority } from "@/lib/luxury-requests";
+import type { VipData, WishlistItem, WishlistStatus, EvidenceKey, EvidenceStatus } from "@/lib/vip-features";
+import {
+  WISHLIST_STATUS_META, EVIDENCE_KEYS, EVIDENCE_LABELS, VIP_GRADE_META,
+  nextEvidenceStatus, type VipGrade,
+} from "@/lib/vip-features";
 
 const KEY = "mp_admin_pw";
 const ALL: RequestStatus[] = ["new","checking","quoted","paid","sourcing","shipped","completed","cancelled"];
@@ -98,6 +103,9 @@ function Dashboard({ pw }: { pw:string }) {
   const [saveState,   setSaveState]   = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [brief,       setBrief]       = useState("");
   const [briefCopied, setBriefCopied] = useState(false);
+  /* ── VIP state ── */
+  const [vipData,    setVipData]    = useState<VipData|null>(null);
+  const [vipLoading, setVipLoading] = useState(false);
   /* ── Payment state ── */
   const [payAmt,       setPayAmt]       = useState<number|null>(null);
   const [srcFee,       setSrcFee]       = useState<number|null>(null);
@@ -135,6 +143,13 @@ function Dashboard({ pw }: { pw:string }) {
     setPayNote(r.payment_note ?? "");
     setPayStatus(r.payment_status ?? "not_requested");
     setPaySaveState("idle");
+    // VIP 데이터 로드
+    setVipData(null); setVipLoading(true);
+    api(`/api/vip/${r.id}`, pw)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setVipData(data as VipData | null))
+      .catch(() => setVipData(null))
+      .finally(() => setVipLoading(false));
   }
 
   async function changeStatus(id:string, status:RequestStatus){
@@ -185,6 +200,32 @@ function Dashboard({ pw }: { pw:string }) {
         : r));
       setSel(p => p ? { ...p, payment_status: status } : p);
     } catch { setPaySaveState("error"); }
+  }
+
+  async function updateWishlistStatus(itemId: string, status: WishlistStatus) {
+    if (!sel) return;
+    await api(`/api/vip/${sel.id}`, pw, {
+      method: "PATCH",
+      body: JSON.stringify({ wishlist_item_id: itemId, wishlist_status: status }),
+    });
+    setVipData(p => p ? {
+      ...p,
+      wishlist: p.wishlist.map(w => w.id === itemId ? { ...w, status } : w),
+    } : p);
+  }
+
+  async function cycleEvidence(key: EvidenceKey) {
+    if (!sel || !vipData?.evidence) return;
+    const current = vipData.evidence[key];
+    const next = nextEvidenceStatus(current);
+    await api(`/api/vip/${sel.id}`, pw, {
+      method: "PATCH",
+      body: JSON.stringify({ evidence: { [key]: next } }),
+    });
+    setVipData(p => p?.evidence ? {
+      ...p,
+      evidence: { ...p.evidence, [key]: next },
+    } : p);
   }
 
   function copyBrief() {
@@ -346,6 +387,130 @@ function Dashboard({ pw }: { pw:string }) {
                 </div>
               </div>
             )}
+
+            {/* ── VIP CLIENT PROFILE ── */}
+            <div style={{ padding:"1.5rem", background:"#111111", border:"1px solid rgba(201,169,110,0.09)", marginBottom:"1.5rem" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem" }}>
+                <div>
+                  <div style={{ fontSize:"0.58rem", letterSpacing:"0.2em", color:"#c9a96e" }}>VIP CLIENT PROFILE</div>
+                  <div style={{ fontSize:"0.62rem", color:"#333330", marginTop:"2px" }}>선호도 · 위시리스트 · 소싱 증빙</div>
+                </div>
+                {vipData?.preferences && (() => {
+                  const grade = (vipData.preferences.vip_grade ?? "Private") as VipGrade;
+                  const gm = VIP_GRADE_META[grade] ?? VIP_GRADE_META.Private;
+                  return (
+                    <span style={{ fontSize:"0.58rem", padding:"0.15rem 0.65rem",
+                      border:`1px solid ${gm.border}`, color:gm.color, background:gm.bg,
+                      letterSpacing:"0.1em" }}>◆ {grade.toUpperCase()}</span>
+                  );
+                })()}
+              </div>
+
+              {vipLoading && (
+                <div style={{ textAlign:"center", padding:"1.5rem", color:"#333330", fontSize:"0.72rem" }}>불러오는 중...</div>
+              )}
+
+              {!vipLoading && !vipData && (
+                <div style={{ textAlign:"center", padding:"1rem", color:"#2a2a25", fontSize:"0.72rem",
+                  border:"1px dashed rgba(201,169,110,0.07)" }}>VIP 프로필 없음 (고객이 입력하지 않았거나 이전 문의)</div>
+              )}
+
+              {!vipLoading && vipData && (
+                <div>
+                  {/* 선호도 */}
+                  {vipData.preferences && (() => {
+                    const p = vipData.preferences;
+                    const rows: [string, string|undefined][] = [
+                      ["선호 브랜드", p.preferred_brands],
+                      ["선호 색상",   p.preferred_colors],
+                      ["선호 사이즈", p.preferred_size],
+                      ["상세 예산",   p.budget_range_detail],
+                      ["선호 지역",   p.preferred_region],
+                      ["구매 목적",   p.purchase_purpose],
+                      ["연락 방식",   p.contact_preference],
+                    ].filter(([, v]) => v) as [string, string][];
+                    return rows.length > 0 ? (
+                      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",
+                        gap:"0.6rem", marginBottom:"1.5rem" }}>
+                        {rows.map(([l, v]) => (
+                          <div key={l} style={{ padding:"0.7rem 0.9rem",
+                            background:"#0d0d0b", border:"1px solid rgba(201,169,110,0.05)" }}>
+                            <div style={{ fontSize:"0.52rem", letterSpacing:"0.1em", color:"#333330", marginBottom:"0.25rem" }}>{l}</div>
+                            <div style={{ fontSize:"0.78rem", color:"#888880" }}>{v}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+
+                  {/* 위시리스트 */}
+                  {vipData.wishlist.length > 0 && (
+                    <div style={{ marginBottom:"1.5rem" }}>
+                      <div style={{ fontSize:"0.55rem", letterSpacing:"0.18em", color:"#c9a96e", marginBottom:"0.8rem" }}>PRIVATE WISHLIST</div>
+                      <div style={{ display:"grid", gap:"0.5rem" }}>
+                        {vipData.wishlist.map((item: WishlistItem) => {
+                          const sm = WISHLIST_STATUS_META[item.status as WishlistStatus] ?? WISHLIST_STATUS_META.checking;
+                          return (
+                            <div key={item.id} style={{ display:"flex", alignItems:"center",
+                              gap:"0.75rem", padding:"0.7rem 0.9rem",
+                              background:"#0d0d0b", border:`1px solid ${sm.border}`, flexWrap:"wrap" }}>
+                              <div style={{ flex:1, minWidth:"120px" }}>
+                                <div style={{ fontSize:"0.75rem", color:"#f5f0e8" }}>{item.brand} — {item.product_name}</div>
+                                {item.color_size && (
+                                  <div style={{ fontSize:"0.62rem", color:"#444440", marginTop:"1px" }}>{item.color_size}</div>
+                                )}
+                              </div>
+                              <div style={{ display:"flex", gap:"0.3rem", flexWrap:"wrap" }}>
+                                {(Object.keys(WISHLIST_STATUS_META) as WishlistStatus[]).map(s => {
+                                  const meta = WISHLIST_STATUS_META[s];
+                                  return (
+                                    <button key={s}
+                                      onClick={() => updateWishlistStatus(item.id, s)}
+                                      style={{ background: item.status===s ? meta.bg : "none",
+                                        border:`1px solid ${item.status===s ? meta.border : "rgba(80,80,75,0.2)"}`,
+                                        color: item.status===s ? meta.color : "#333330",
+                                        padding:"0.2rem 0.5rem", fontSize:"0.54rem",
+                                        letterSpacing:"0.06em", cursor:"pointer" }}>
+                                      {meta.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 소싱 증빙 */}
+                  {vipData.evidence && (
+                    <div>
+                      <div style={{ fontSize:"0.55rem", letterSpacing:"0.18em", color:"#c9a96e", marginBottom:"0.8rem" }}>SOURCING EVIDENCE</div>
+                      <div style={{ display:"grid", gap:"0.4rem" }}>
+                        {EVIDENCE_KEYS.map((key: EvidenceKey) => {
+                          const evStatus = (vipData.evidence as NonNullable<VipData["evidence"]>)[key] as EvidenceStatus;
+                          const color = evStatus==="completed" ? "#88cc88" : evStatus==="in_progress" ? "#c9a96e" : "#2a2a25";
+                          const dot   = evStatus==="completed" ? "●" : evStatus==="in_progress" ? "◑" : "○";
+                          return (
+                            <button key={key}
+                              onClick={() => cycleEvidence(key)}
+                              style={{ display:"flex", alignItems:"center", gap:"0.6rem",
+                                padding:"0.55rem 0.8rem", background:"#0d0d0b",
+                                border:"1px solid rgba(201,169,110,0.06)",
+                                cursor:"pointer", textAlign:"left", width:"100%" }}>
+                              <span style={{ color, fontSize:"0.8rem", flexShrink:0 }}>{dot}</span>
+                              <span style={{ fontSize:"0.7rem", color, flex:1 }}>{EVIDENCE_LABELS[key]}</span>
+                              <span style={{ fontSize:"0.52rem", color:"#2a2a25", letterSpacing:"0.08em" }}>클릭하여 변경</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* 메모 & 견적 */}
             <div style={{ padding:"1.5rem", background:"#111111", border:"1px solid rgba(201,169,110,0.07)", marginBottom:"1.5rem" }}>
