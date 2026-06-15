@@ -525,9 +525,18 @@ function Dashboard({ pw }: { pw:string }) {
   );
 }
 
+// TODO: 실제 고객정보 수집 전에는 반드시 관리자 비밀번호 보호를 다시 활성화할 것.
+// 재활성화 방법: 아래 BYPASS_AUTH를 false로 변경하고,
+// app/api/requests/route.ts 및 app/api/requests/[id]/route.ts의
+// checkAuth 함수에서 __bypass__ 조건을 삭제한다.
+const BYPASS_AUTH = true;
+
 export default function AdminPage() {
   const [pw, setPw] = useState<string|null>(null);
-  useEffect(()=>{ const s = sessionStorage.getItem(KEY); if(s) setPw(s); },[]);
+  useEffect(()=>{
+    if (BYPASS_AUTH) { setPw("__bypass__"); return; }
+    const s = sessionStorage.getItem(KEY); if(s) setPw(s);
+  },[]);
   if (!pw) return <Login onLogin={setPw} />;
   return <Dashboard pw={pw} />;
 }
