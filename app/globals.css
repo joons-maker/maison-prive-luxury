@@ -61,6 +61,50 @@ body {
   to   { transform: rotate(360deg); }
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Brands marquee ──────────────────────────── */
+.lux-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+.lux-marquee-track:hover { animation-play-state: paused; }
+
+/* ─── Credential numbers ──────────────────────── */
+.lux-credential-item {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-right: 1px solid rgba(201,169,110,0.07);
+  animation: countUp 0.7s ease-out both;
+}
+.lux-credential-item:last-child { border-right: none; }
+
+/* ─── Floating gold ornament ──────────────────── */
+.lux-diamond {
+  width: 7px; height: 7px;
+  border: 1px solid rgba(201,169,110,0.55);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* ─── Request info panel ──────────────────────── */
+.lux-info-panel {
+  border-left: 1px solid rgba(201,169,110,0.2);
+  padding-left: 1.2rem;
+  transition: border-color 0.3s ease;
+}
+.lux-info-panel:hover { border-color: rgba(201,169,110,0.4); }
+
 /* ─── Shimmer gold text ───────────────────────── */
 .shimmer-gold {
   background: linear-gradient(90deg,

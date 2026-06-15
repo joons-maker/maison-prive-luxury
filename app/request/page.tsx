@@ -271,6 +271,44 @@ export default function RequestPage() {
         </div>
       </section>
 
+      {/* ── Concierge Promise ─────────────────────────── */}
+      <section style={{ maxWidth:"760px", margin:"0 auto 3rem", padding:"0 2rem" }}>
+        <div style={{ border:"1px solid rgba(201,169,110,0.1)", background:"#0d0d0b",
+          padding:"2.5rem 3rem", position:"relative" }}>
+          {/* corner marks */}
+          {[0,1,2,3].map(i => (
+            <div key={i} style={{
+              position:"absolute", width:"14px", height:"14px",
+              borderColor:"rgba(201,169,110,0.3)", borderStyle:"solid",
+              borderWidth: i===0?"1px 0 0 1px":i===1?"1px 1px 0 0":i===2?"0 0 1px 1px":"0 1px 1px 0",
+              top: i<2?"-1px":"auto", bottom: i>=2?"-1px":"auto",
+              left: i%2===0?"-1px":"auto", right: i%2===1?"-1px":"auto",
+            }} />
+          ))}
+          <div style={{ fontSize:"0.56rem", letterSpacing:"0.36em", color:"#c9a96e", marginBottom:"1.8rem" }}>
+            CONCIERGE PROMISE
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:"2rem" }}>
+            {[
+              { symbol:"◈", title:"Fully Private",   desc:"모든 문의는 외부에 공개되지 않으며, 담당 컨시어지만 열람합니다." },
+              { symbol:"◇", title:"Direct Boutique",  desc:"에이전시가 아닌 현지 공식 부티크를 직접 방문합니다." },
+              { symbol:"◉", title:"Transparent Cost", desc:"현지 구매가, 관세, 배송비를 포함한 투명한 견적을 제공합니다." },
+              { symbol:"✦", title:"No Upfront Fee",   desc:"소싱 확인 전까지 비용이 발생하지 않습니다." },
+            ].map(p => (
+              <div key={p.title} style={{ display:"flex", gap:"0.8rem" }}>
+                <span style={{ color:"rgba(201,169,110,0.45)", fontSize:"0.75rem", flexShrink:0, marginTop:"1px" }}>{p.symbol}</span>
+                <div>
+                  <div style={{ fontSize:"0.58rem", letterSpacing:"0.16em", color:"#c9a96e", marginBottom:"0.45rem" }}>
+                    {p.title.toUpperCase()}
+                  </div>
+                  <p style={{ fontSize:"0.74rem", color:"#3a3a35", lineHeight:1.9 }}>{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section style={{ maxWidth:"760px", margin:"0 auto 10rem", padding:"0 2rem" }}>
         {state === "error" && (
           <div style={{ marginBottom:"1.5rem", padding:"1rem 1.5rem",
