@@ -22,11 +22,11 @@ export default function ProcessSteps() {
         if (e.isIntersecting) {
           io.disconnect();
           steps.forEach((_, i) => {
-            setTimeout(() => setActive(i), i * 240);
+            setTimeout(() => setActive(i), i * 380);
           });
         }
       },
-      { threshold: 0.22 }
+      { threshold: 0.15 }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -41,44 +41,45 @@ export default function ProcessSteps() {
             <div key={step.num} style={{
               flex:"1 1 160px", maxWidth:"220px",
               padding:"2rem 1.5rem", textAlign:"center", position:"relative",
-              opacity: lit ? 1 : 0.12,
-              transform: lit ? "translateY(0)" : "translateY(14px)",
-              transition: `opacity 0.65s ease, transform 0.65s ease`,
+              opacity: lit ? 1 : 0.05,
+              transform: lit ? "translateY(0)" : "translateY(22px)",
+              transition: "opacity 0.75s ease, transform 0.75s ease",
             }}>
               {i < steps.length - 1 && (
                 <div style={{
                   position:"absolute", top:"2.75rem", right:"-10px",
                   fontSize:"0.85rem", zIndex:1,
-                  color: lit ? "rgba(201,169,110,0.4)" : "rgba(201,169,110,0.07)",
-                  transition: "color 0.5s ease 0.25s",
+                  color: lit ? "rgba(201,169,110,0.6)" : "rgba(201,169,110,0.06)",
+                  transition: "color 0.6s ease 0.3s",
                 }}>→</div>
               )}
               <div style={{
                 width:"52px", height:"52px",
-                border: lit ? "1px solid rgba(201,169,110,0.5)" : "1px solid rgba(201,169,110,0.12)",
+                border: lit ? "1px solid rgba(201,169,110,0.7)" : "1px solid rgba(201,169,110,0.1)",
                 display:"flex", alignItems:"center", justifyContent:"center",
                 margin:"0 auto 1.3rem",
                 fontFamily:"Georgia,serif", fontSize:"0.82rem",
-                color: lit ? "#c9a96e" : "#222220",
+                color: lit ? "#e8c98a" : "#1a1a16",
                 letterSpacing:"0.06em",
-                background: lit ? "rgba(201,169,110,0.05)" : "transparent",
-                transition: "border-color 0.5s ease, color 0.5s ease, background 0.5s ease",
+                background: lit ? "rgba(201,169,110,0.08)" : "transparent",
+                boxShadow: lit ? "0 0 18px rgba(201,169,110,0.15), inset 0 0 10px rgba(201,169,110,0.05)" : "none",
+                transition: "border-color 0.6s ease, color 0.6s ease, background 0.6s ease, box-shadow 0.6s ease",
               }}>
                 {step.num}
               </div>
               <div style={{
                 fontSize:"0.62rem", letterSpacing:"0.22em",
-                color: lit ? "#c9a96e" : "#282820",
+                color: lit ? "#c9a96e" : "#1a1a14",
                 marginBottom:"0.8rem",
-                transition: "color 0.5s ease",
+                transition: "color 0.6s ease",
               }}>
                 {step.title.toUpperCase()}
               </div>
               <p style={{
                 fontSize:"0.73rem",
-                color: lit ? "#3a3a35" : "#1c1c18",
+                color: lit ? "#4a4a44" : "#111110",
                 lineHeight:1.85,
-                transition: "color 0.5s ease",
+                transition: "color 0.6s ease",
               }}>
                 {step.desc}
               </p>

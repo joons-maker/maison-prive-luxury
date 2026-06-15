@@ -130,24 +130,24 @@ export default function Home() {
         {/* Content */}
         <div style={{ position:"relative", maxWidth:"960px" }}>
           <div style={{ fontSize:"0.55rem", letterSpacing:"0.55em", color:"rgba(201,169,110,0.7)",
-            marginBottom:"1.8rem", animation:"fadeInUp 0.8s ease-out 0.2s both" }}>
+            marginBottom:"1.8rem", animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>
             PARIS · MILAN · PRIVATE SOURCING CONCIERGE
           </div>
           <div style={{ width:"48px", height:"1px",
             background:"linear-gradient(to right,transparent,#c9a96e,transparent)",
-            margin:"0 auto 2.8rem", animation:"fadeIn 0.8s ease-out 0.35s both" }} />
+            margin:"0 auto 2.8rem", animation:"fadeIn 0.7s ease-out 0.45s both" }} />
 
           <h1 style={{ fontFamily:"Georgia,serif",
             fontSize:"clamp(2.4rem,6.2vw,5rem)", fontWeight:400, lineHeight:1.18,
             color:"#f5f0e8", marginBottom:"2.2rem",
-            animation:"fadeInUp 0.9s ease-out 0.4s both", letterSpacing:"-0.01em" }}>
+            animation:"fadeInUp 1s cubic-bezier(0.22,1,0.36,1) 0.6s both", letterSpacing:"-0.01em" }}>
             Private Luxury Sourcing<br />
             <span className="shimmer-gold">from Paris & Milan</span>
           </h1>
 
           {/* Pull quote */}
           <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center",
-            marginBottom:"2rem", animation:"fadeIn 0.8s ease-out 0.55s both" }}>
+            marginBottom:"2rem", animation:"fadeIn 0.8s ease-out 1s both" }}>
             <div style={{ flex:1, maxWidth:"80px", height:"1px",
               background:"linear-gradient(to right,transparent,rgba(201,169,110,0.3))" }} />
             <span style={{ fontSize:"0.6rem", letterSpacing:"0.28em", color:"#888880", whiteSpace:"nowrap" }}>
@@ -160,18 +160,18 @@ export default function Home() {
           <p style={{ fontFamily:"Georgia,serif",
             fontSize:"clamp(1rem,2.4vw,1.12rem)", color:"#6a6a60",
             lineHeight:2, marginBottom:"0.8rem",
-            animation:"fadeInUp 0.8s ease-out 0.55s both" }}>
+            animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 1.15s both" }}>
             유럽 현지 네트워크로 연결하는 초럭셔리 명품 컨시어지
           </p>
           <p style={{ fontSize:"clamp(0.76rem,1.7vw,0.84rem)", color:"#2e2e28",
             lineHeight:2, maxWidth:"560px", margin:"0 auto 4rem",
-            animation:"fadeInUp 0.8s ease-out 0.65s both" }}>
+            animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 1.3s both" }}>
             희소 명품, 한정판, 국내 품절 제품을 파리와 밀라노 현지 네트워크를 통해<br />
             조용하고 품격 있게 확인합니다.
           </p>
 
           <div style={{ display:"flex", gap:"1rem", justifyContent:"center",
-            flexWrap:"wrap", animation:"fadeInUp 0.8s ease-out 0.8s both" }}>
+            flexWrap:"wrap", animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 1.55s both" }}>
             <Link href="/request" className="lux-btn-shine" style={{ textDecoration:"none",
               background:"#c9a96e", color:"#0a0a0a",
               padding:"1.15rem 3.2rem", fontSize:"0.71rem",
@@ -189,7 +189,7 @@ export default function Home() {
         {/* Scroll cue */}
         <div style={{ position:"absolute", bottom:"2.5rem", left:"50%", transform:"translateX(-50%)",
           display:"flex", flexDirection:"column", alignItems:"center", gap:"0.5rem",
-          animation:"fadeIn 1s ease-out 1.5s both" }}>
+          animation:"fadeIn 1s ease-out 2s both" }}>
           <div style={{ width:"1px", height:"54px",
             background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.7))" }} />
           <span style={{ fontSize:"0.51rem", letterSpacing:"0.4em", color:"#282823" }}>SCROLL</span>
@@ -214,11 +214,11 @@ export default function Home() {
             {brandsList.map((b, i) => (
               <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:"1.5rem",
                 whiteSpace:"nowrap", padding:"0 2.2rem" }}>
-                <span style={{ fontSize:"0.56rem", letterSpacing:"0.28em",
-                  color:"rgba(201,169,110,0.35)", fontWeight:400 }}>
+                <span style={{ fontSize:"0.58rem", letterSpacing:"0.32em",
+                  color:"rgba(201,169,110,0.65)", fontWeight:300 }}>
                   {b}
                 </span>
-                <span style={{ color:"rgba(201,169,110,0.12)", fontSize:"0.5rem" }}>◆</span>
+                <span style={{ color:"rgba(201,169,110,0.3)", fontSize:"0.5rem" }}>◆</span>
               </span>
             ))}
           </div>

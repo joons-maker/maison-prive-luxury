@@ -27,7 +27,7 @@ body {
 
 /* ─── Animations ─────────────────────────────── */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(28px); }
+  from { opacity: 0; transform: translateY(52px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -73,65 +73,72 @@ body {
 
 /* ─── Gold hero sweep ──────────────────────────── */
 @keyframes goldSweep {
-  0%   { transform: translateX(-130%) rotate(-12deg); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 0.9; }
-  100% { transform: translateX(240%) rotate(-12deg); opacity: 0; }
+  0%   { transform: translateX(-130%) rotate(-10deg); opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateX(220%) rotate(-10deg); opacity: 0; }
 }
 
 .lux-hero-sweep {
   position: absolute;
   top: -20%;
   left: 0;
-  width: 30%;
+  width: 45%;
   height: 140%;
   background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(201,169,110,0.045) 50%,
-    transparent 80%
+    100deg,
+    transparent 15%,
+    rgba(201,169,110,0.06) 35%,
+    rgba(232,201,138,0.16) 50%,
+    rgba(201,169,110,0.06) 65%,
+    transparent 85%
   );
   pointer-events: none;
-  animation: goldSweep 9s cubic-bezier(0.4,0,0.6,1) infinite;
-  animation-delay: 1.8s;
+  animation: goldSweep 7s cubic-bezier(0.25,0,0.75,1) infinite;
+  animation-delay: 1.5s;
 }
 
 /* ─── Button shine on hover ────────────────────── */
 @keyframes btnShine {
-  from { left: -80%; }
-  to   { left: 160%; }
+  from { left: -90%; }
+  to   { left: 170%; }
 }
 
 .lux-btn-shine {
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease, letter-spacing 0.3s ease !important;
+}
+.lux-btn-shine:hover {
+  background: #d9b97e !important;
+  letter-spacing: 0.32em !important;
 }
 .lux-btn-shine::after {
   content: '';
   position: absolute;
-  top: 0; left: -80%;
-  width: 50%;
+  top: 0; left: -90%;
+  width: 55%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255,255,255,0.16),
+    rgba(255,255,255,0.35),
     transparent
   );
   transform: skewX(-18deg);
   pointer-events: none;
 }
 .lux-btn-shine:hover::after {
-  animation: btnShine 0.52s ease forwards;
+  animation: btnShine 0.48s ease forwards;
 }
 
 /* ─── Brands marquee ──────────────────────────── */
 .lux-marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 42s linear infinite;
+  animation: marquee 28s linear infinite;
 }
-.lux-marquee-track:hover { animation-duration: 100s; }
+.lux-marquee-track:hover { animation-duration: 72s; }
 
 /* ─── Credential numbers ──────────────────────── */
 .lux-credential-item {
