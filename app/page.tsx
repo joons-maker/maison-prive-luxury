@@ -3,6 +3,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import FadeUp from "@/components/FadeUp";
 import ProcessSteps from "@/components/ProcessSteps";
+import HeroScene from "@/components/HeroScene";
 
 /* ── Data ─────────────────────────────────────────────────── */
 const BRANDS = [
@@ -100,78 +101,85 @@ export default function Home() {
         padding: "10rem 2rem 8rem",
         position: "relative", overflow: "hidden",
       }}>
-        {/* Decorative layers */}
+        {/* ── Scene: curtain + orb + corners ─── */}
+        <HeroScene />
+
+        {/* ── Static decoration layers ───────── */}
+        {/* Top gold rule */}
         <div style={{ position:"absolute", top:0, left:0, right:0, height:"2px",
-          background:"linear-gradient(to right,transparent 0%,rgba(201,169,110,0.5) 20%,rgba(232,201,138,0.8) 50%,rgba(201,169,110,0.5) 80%,transparent 100%)" }} />
+          background:"linear-gradient(to right,transparent 0%,rgba(201,169,110,0.6) 20%,rgba(232,201,138,0.95) 50%,rgba(201,169,110,0.6) 80%,transparent 100%)" }} />
+        {/* Vignette */}
         <div style={{ position:"absolute", inset:0,
-          background:"radial-gradient(ellipse 90% 70% at 50% 45%, rgba(201,169,110,0.07) 0%, transparent 65%)",
+          background:"radial-gradient(ellipse 150% 120% at 50% 50%, transparent 30%, rgba(6,6,6,0.82) 100%)",
           pointerEvents:"none" }} />
+        {/* Grid */}
         <div style={{ position:"absolute", inset:0,
-          background:"radial-gradient(ellipse 150% 120% at 50% 50%, transparent 35%, rgba(10,10,10,0.75) 100%)",
-          pointerEvents:"none" }} />
-        <div style={{ position:"absolute", inset:0,
-          backgroundImage:"linear-gradient(rgba(201,169,110,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,0.022) 1px,transparent 1px)",
+          backgroundImage:"linear-gradient(rgba(201,169,110,0.028) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,0.028) 1px,transparent 1px)",
           backgroundSize:"90px 90px", pointerEvents:"none" }} />
+        {/* MP watermark */}
         <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
           fontSize:"clamp(10rem,22vw,24rem)", fontFamily:"Georgia,serif",
-          color:"rgba(201,169,110,0.028)", fontWeight:700, letterSpacing:"0.04em",
-          pointerEvents:"none", whiteSpace:"nowrap", userSelect:"none", lineHeight:1 }}>
+          color:"rgba(201,169,110,0.065)", fontWeight:700, letterSpacing:"0.04em",
+          pointerEvents:"none", whiteSpace:"nowrap", userSelect:"none", lineHeight:1,
+          animation:"fadeIn 3s ease-out 1.8s both" }}>
           MP
         </div>
+        {/* Side vertical rules */}
         <div style={{ position:"absolute", left:"clamp(1.5rem,7vw,7rem)", top:"12%", bottom:"12%",
-          width:"1px", background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.2),transparent)",
-          pointerEvents:"none" }} />
+          width:"1px", background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.28),transparent)",
+          pointerEvents:"none", animation:"fadeIn 1.2s ease-out 2s both" }} />
         <div style={{ position:"absolute", right:"clamp(1.5rem,7vw,7rem)", top:"12%", bottom:"12%",
-          width:"1px", background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.2),transparent)",
-          pointerEvents:"none" }} />
-        {/* Gold light sweep */}
+          width:"1px", background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.28),transparent)",
+          pointerEvents:"none", animation:"fadeIn 1.2s ease-out 2.1s both" }} />
+        {/* Gold sweep */}
         <div className="lux-hero-sweep" />
 
-        {/* Content */}
+        {/* ── Content ────────────────────────── */}
         <div style={{ position:"relative", maxWidth:"960px" }}>
-          <div style={{ fontSize:"0.55rem", letterSpacing:"0.55em", color:"rgba(201,169,110,0.7)",
-            marginBottom:"1.8rem", animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>
+          <div style={{ fontSize:"0.55rem", letterSpacing:"0.55em", color:"rgba(201,169,110,0.85)",
+            marginBottom:"1.8rem", animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.5s both" }}>
             PARIS · MILAN · PRIVATE SOURCING CONCIERGE
           </div>
           <div style={{ width:"48px", height:"1px",
             background:"linear-gradient(to right,transparent,#c9a96e,transparent)",
-            margin:"0 auto 2.8rem", animation:"fadeIn 0.7s ease-out 0.45s both" }} />
+            margin:"0 auto 2.8rem",
+            animation:"lineGrow 0.8s cubic-bezier(0.22,1,0.36,1) 0.85s both" }} />
 
           <h1 style={{ fontFamily:"Georgia,serif",
             fontSize:"clamp(2.4rem,6.2vw,5rem)", fontWeight:400, lineHeight:1.18,
             color:"#f5f0e8", marginBottom:"2.2rem",
-            animation:"fadeInUp 1s cubic-bezier(0.22,1,0.36,1) 0.6s both", letterSpacing:"-0.01em" }}>
+            animation:"fadeInUp 1.1s cubic-bezier(0.22,1,0.36,1) 1.05s both", letterSpacing:"-0.01em" }}>
             Private Luxury Sourcing<br />
             <span className="shimmer-gold">from Paris & Milan</span>
           </h1>
 
           {/* Pull quote */}
           <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center",
-            marginBottom:"2rem", animation:"fadeIn 0.8s ease-out 1s both" }}>
+            marginBottom:"2rem", animation:"fadeIn 0.9s ease-out 1.5s both" }}>
             <div style={{ flex:1, maxWidth:"80px", height:"1px",
-              background:"linear-gradient(to right,transparent,rgba(201,169,110,0.3))" }} />
+              background:"linear-gradient(to right,transparent,rgba(201,169,110,0.4))" }} />
             <span style={{ fontSize:"0.6rem", letterSpacing:"0.28em", color:"#888880", whiteSpace:"nowrap" }}>
               조용히, 프라이빗하게
             </span>
             <div style={{ flex:1, maxWidth:"80px", height:"1px",
-              background:"linear-gradient(to left,transparent,rgba(201,169,110,0.3))" }} />
+              background:"linear-gradient(to left,transparent,rgba(201,169,110,0.4))" }} />
           </div>
 
           <p style={{ fontFamily:"Georgia,serif",
-            fontSize:"clamp(1rem,2.4vw,1.12rem)", color:"#6a6a60",
+            fontSize:"clamp(1rem,2.4vw,1.12rem)", color:"#7a7a70",
             lineHeight:2, marginBottom:"0.8rem",
-            animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 1.15s both" }}>
+            animation:"fadeInUp 1s cubic-bezier(0.22,1,0.36,1) 1.65s both" }}>
             유럽 현지 네트워크로 연결하는 초럭셔리 명품 컨시어지
           </p>
-          <p style={{ fontSize:"clamp(0.76rem,1.7vw,0.84rem)", color:"#2e2e28",
+          <p style={{ fontSize:"clamp(0.76rem,1.7vw,0.84rem)", color:"#3a3a34",
             lineHeight:2, maxWidth:"560px", margin:"0 auto 4rem",
-            animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 1.3s both" }}>
+            animation:"fadeInUp 1s cubic-bezier(0.22,1,0.36,1) 1.85s both" }}>
             희소 명품, 한정판, 국내 품절 제품을 파리와 밀라노 현지 네트워크를 통해<br />
             조용하고 품격 있게 확인합니다.
           </p>
 
           <div style={{ display:"flex", gap:"1rem", justifyContent:"center",
-            flexWrap:"wrap", animation:"fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 1.55s both" }}>
+            flexWrap:"wrap", animation:"fadeInUp 1s cubic-bezier(0.22,1,0.36,1) 2.1s both" }}>
             <Link href="/request" className="lux-btn-shine" style={{ textDecoration:"none",
               background:"#c9a96e", color:"#0a0a0a",
               padding:"1.15rem 3.2rem", fontSize:"0.71rem",
@@ -189,7 +197,7 @@ export default function Home() {
         {/* Scroll cue */}
         <div style={{ position:"absolute", bottom:"2.5rem", left:"50%", transform:"translateX(-50%)",
           display:"flex", flexDirection:"column", alignItems:"center", gap:"0.5rem",
-          animation:"fadeIn 1s ease-out 2s both" }}>
+          animation:"fadeIn 1.2s ease-out 2.6s both" }}>
           <div style={{ width:"1px", height:"54px",
             background:"linear-gradient(to bottom,transparent,rgba(201,169,110,0.7))" }} />
           <span style={{ fontSize:"0.51rem", letterSpacing:"0.4em", color:"#282823" }}>SCROLL</span>
