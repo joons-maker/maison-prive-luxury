@@ -41,12 +41,77 @@ function SecHead({ num, title, sub }: { num: string; title: string; sub: string 
   );
 }
 
+/* ── 소싱 프리뷰 분석 (룰 기반) ── */
+const RARE_KEYWORDS = ["limited","rare","한정","품절","special","exotic","악어","crocodile","birkin","kelly","hermès","hermes","quota"];
+
+function analyzeSourcing(brand: string, product: string, budget: string, country: string) {
+  const text = (brand + " " + product).toLowerCase();
+  const isRare = RARE_KEYWORDS.some(k => text.includes(k));
+  const isHighBudget = budget === "3,000만원 이상" || budget === "가격 상관없음";
+
+  const difficulty   = isRare ? "High" : "Standard";
+  const availability = isRare ? "Limited — 현지 확인 필요" : "Verifiable";
+  const region       = country === "france" ? "Paris · Rue du Faubourg" : country === "italy" ? "Milan · Via Montenapoleone" : "Paris / Milan (최적 국가 선택)";
+  const priority     = (isRare || isHighBudget) ? "Private High" : "Standard";
+
+  return { difficulty, availability, region, priority };
+}
+
+/* ── 소싱 프리뷰 카드 ── */
+function SourcingPreview({ brand, product, budget, country }: {
+  brand: string; product: string; budget: string; country: string;
+}) {
+  if (!brand.trim() || !product.trim()) return null;
+  const a = analyzeSourcing(brand, product, budget, country);
+
+  const rows: [string, string, string][] = [
+    ["Estimated Sourcing Difficulty", a.difficulty, a.difficulty === "High" ? "#c9a96e" : "#888880"],
+    ["Boutique Availability",         a.availability, "#888880"],
+    ["Recommended Region",            a.region, "#888880"],
+    ["Concierge Priority",            a.priority, a.priority === "Private High" ? "#c9a96e" : "#888880"],
+  ];
+
+  return (
+    <div style={{ margin:"2rem 0", padding:"1.8rem 2rem",
+      border:"1px solid rgba(201,169,110,0.18)", background:"#0a0a08",
+      animation:"fadeInCard 0.4s ease" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:"0.8rem", marginBottom:"1.4rem" }}>
+        <div style={{ width:"4px", height:"4px", background:"#c9a96e", transform:"rotate(45deg)", flexShrink:0 }} />
+        <div>
+          <div style={{ fontSize:"0.56rem", letterSpacing:"0.32em", color:"#c9a96e" }}>
+            PRIVATE SOURCING PREVIEW
+          </div>
+          <div style={{ fontSize:"0.63rem", color:"#2a2a25", marginTop:"2px" }}>
+            사전 검토 결과 · 예상 분석 (실제 재고 보장 아님)
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display:"grid", gap:"0.85rem" }}>
+        {rows.map(([label, value, color]) => (
+          <div key={label} style={{ display:"flex", justifyContent:"space-between",
+            alignItems:"flex-start", gap:"1rem",
+            paddingBottom:"0.7rem", borderBottom:"1px solid rgba(201,169,110,0.06)" }}>
+            <div style={{ fontSize:"0.63rem", color:"#333330", letterSpacing:"0.08em", flexShrink:0 }}>{label}</div>
+            <div style={{ fontSize:"0.72rem", color, textAlign:"right", fontFamily:"Georgia,serif" }}>{value}</div>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ fontSize:"0.6rem", color:"#1e1e1a", marginTop:"1.2rem", lineHeight:1.8 }}>
+        * 본 분석은 사전 참고용 예상 결과이며, 실제 현지 재고 및 구매 가능 여부는 담당 컨시어지 확인 후 안내드립니다.
+      </p>
+    </div>
+  );
+}
+
 export default function RequestPage() {
   const [state, setState] = useState<State>("idle");
   const [errMsg, setErrMsg] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [imageUrl, setImageUrl] = useState<string|null>(null);
   const [uploading, setUploading] = useState(false);
+  const [submittedId, setSubmittedId] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     name:"", phone:"", kakao_id:"", email:"",
@@ -54,7 +119,8 @@ export default function RequestPage() {
     preferred_country:"any" as "france"|"italy"|"any",
     delivery_preference:"consult" as "domestic"|"overseas"|"consult",
     message:"",
-    _hp:"", // honeypot — 봇 감지용, 사람은 비워둠
+    invitation_code:"",
+    _hp:"",
   });
 
   const set = (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>) =>
@@ -82,10 +148,15 @@ export default function RequestPage() {
       const res = await fetch("/api/requests", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ ...form, product_image_urls: imageUrl ? [imageUrl] : [] }),
+        body: JSON.stringify({
+          ...form,
+          product_image_urls: imageUrl ? [imageUrl] : [],
+          invitation_code: form.invitation_code.trim() || undefined,
+        }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error);
+      setSubmittedId(j.id ?? "");
       setState("success");
     } catch (err) {
       setErrMsg(err instanceof Error ? err.message : "문의 접수 중 오류가 발생했습니다. 다시 시도해주세요.");
@@ -99,13 +170,10 @@ export default function RequestPage() {
       <Nav />
       <section style={{ minHeight:"100vh", display:"flex", alignItems:"center",
         justifyContent:"center", padding:"8rem 2rem", textAlign:"center", position:"relative", overflow:"hidden" }}>
-        {/* Background glow */}
         <div style={{ position:"absolute", inset:0,
           background:"radial-gradient(ellipse 70% 60% at 50% 45%, rgba(201,169,110,0.05) 0%, transparent 70%)",
           pointerEvents:"none" }} />
-
         <div style={{ position:"relative", maxWidth:"580px" }}>
-          {/* Top ornament */}
           <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center", marginBottom:"3.5rem" }}>
             <div style={{ flex:1, maxWidth:"80px", height:"1px",
               background:"linear-gradient(to right,transparent,rgba(201,169,110,0.45))" }} />
@@ -131,9 +199,27 @@ export default function RequestPage() {
             lineHeight:2.1, marginBottom:"1.5rem" }}>
             담당 컨시어지가 파리·밀라노 현지를 확인한 후<br />개별 연락드립니다.
           </p>
-          <p style={{ fontSize:"0.82rem", color:"#3d3d38", lineHeight:1.9, marginBottom:"3.5rem" }}>
+          <p style={{ fontSize:"0.82rem", color:"#3d3d38", lineHeight:1.9, marginBottom:"2rem" }}>
             카카오톡 또는 이메일로 연락드리며,<br />현지 확인에 1–3 영업일이 소요될 수 있습니다.
           </p>
+
+          {/* Request ID 표시 */}
+          {submittedId && (
+            <div style={{ border:"1px solid rgba(201,169,110,0.12)",
+              padding:"1.5rem 2rem", marginBottom:"1.5rem", background:"#0d0d0b", textAlign:"left" }}>
+              <div style={{ fontSize:"0.55rem", letterSpacing:"0.25em", color:"#333330", marginBottom:"0.5rem" }}>
+                REQUEST ID (소싱 현황 조회용)
+              </div>
+              <div style={{ fontFamily:"monospace", fontSize:"0.82rem", color:"#c9a96e",
+                wordBreak:"break-all", marginBottom:"0.6rem" }}>
+                {submittedId}
+              </div>
+              <p style={{ fontSize:"0.62rem", color:"#2a2a25", lineHeight:1.8 }}>
+                이 번호와 연락처 뒷자리 4자리로<br />
+                <a href="/track" style={{ color:"#c9a96e", textDecoration:"none" }}>/track</a>에서 소싱 현황을 조회하실 수 있습니다.
+              </p>
+            </div>
+          )}
 
           <div style={{ border:"1px solid rgba(201,169,110,0.1)",
             padding:"1.8rem 2.5rem", marginBottom:"3.5rem", background:"#0d0d0b" }}>
@@ -158,7 +244,6 @@ export default function RequestPage() {
     <>
       <Nav />
 
-      {/* Page header */}
       <section style={{ padding:"8rem 2rem 3rem", textAlign:"center", position:"relative", overflow:"hidden" }}>
         <div style={{ position:"absolute", inset:0,
           background:"radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,169,110,0.05) 0%, transparent 65%)",
@@ -196,9 +281,39 @@ export default function RequestPage() {
         )}
 
         <form onSubmit={onSubmit}>
-          {/* honeypot — CSS로 숨김, 봇이 채우면 서버에서 거부 */}
+          {/* honeypot */}
           <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none" }} aria-hidden="true">
             <input name="_hp" value={form._hp} onChange={set} tabIndex={-1} autoComplete="off" />
+          </div>
+
+          {/* 00 · VIP 초대코드 */}
+          <div className="lux-form-section" style={{ marginBottom:"3rem" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:"1rem", marginBottom:"1.4rem",
+              padding:"1.3rem 1.6rem", border:"1px solid rgba(201,169,110,0.15)", background:"#0a0a08" }}>
+              <div style={{ flexShrink:0 }}>
+                <div style={{ width:"28px", height:"28px", border:"1px solid rgba(201,169,110,0.3)",
+                  display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <span style={{ fontSize:"0.75rem", color:"#c9a96e" }}>✦</span>
+                </div>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:"0.59rem", letterSpacing:"0.25em", color:"#c9a96e", marginBottom:"0.3rem" }}>
+                  VIP INVITATION CODE · 선택 사항
+                </div>
+                <div style={{ fontSize:"0.7rem", color:"#333330" }}>
+                  초대코드가 있으신 경우 입력해주세요. 없어도 문의 가능합니다.
+                </div>
+              </div>
+            </div>
+            <input
+              className="lux-input"
+              style={{ ...inp, letterSpacing:"0.12em", textTransform:"uppercase" }}
+              name="invitation_code"
+              value={form.invitation_code}
+              onChange={set}
+              placeholder="예: MAISON-VIP · PARIS-PRIVATE"
+              maxLength={50}
+            />
           </div>
 
           {/* 01 · Contact */}
@@ -261,9 +376,7 @@ export default function RequestPage() {
                 ) : (
                   <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"0.8rem" }}>
                     <div style={{ fontSize:"1.4rem", color:"rgba(201,169,110,0.25)" }}>◈</div>
-                    <span style={{ fontSize:"0.73rem", color:"#3a3a35" }}>
-                      클릭하여 이미지 업로드
-                    </span>
+                    <span style={{ fontSize:"0.73rem", color:"#3a3a35" }}>클릭하여 이미지 업로드</span>
                     <span style={{ fontSize:"0.63rem", color:"#252520", letterSpacing:"0.1em" }}>
                       JPG · PNG · WEBP · 최대 10MB
                     </span>
@@ -318,6 +431,14 @@ export default function RequestPage() {
             </div>
           </div>
 
+          {/* Sourcing Preview 카드 — 브랜드+제품명 입력 시 자동 표시 */}
+          <SourcingPreview
+            brand={form.brand}
+            product={form.product_name}
+            budget={form.budget}
+            country={form.preferred_country}
+          />
+
           {/* 04 · Message */}
           <div className="lux-form-section">
             <SecHead num="04" title="REQUEST MESSAGE" sub="추가 요청 사항" />
@@ -360,6 +481,14 @@ export default function RequestPage() {
           본 서비스는 공식 브랜드 대리점이 아닌 프라이빗 소싱 컨시어지 서비스입니다.
         </p>
       </section>
+
+      <style>{`
+        @keyframes fadeInCard {
+          from { opacity:0; transform:translateY(-6px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+      `}</style>
+
       <Footer />
     </>
   );

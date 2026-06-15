@@ -6,7 +6,7 @@ function checkAuth(req: NextRequest) {
   return req.headers.get("x-admin-password") === process.env.LUXURY_ADMIN_PASSWORD;
 }
 
-const MAX = { name:80, phone:30, kakao_id:60, email:120, brand:100, product_name:200, message:2000 };
+const MAX = { name:80, phone:30, kakao_id:60, email:120, brand:100, product_name:200, message:2000, invitation_code:50 };
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,9 +39,9 @@ export async function POST(req: NextRequest) {
       preferred_country:   body.preferred_country    ?? "any",
       delivery_preference: body.delivery_preference  ?? "consult",
       message:             body.message?.trim()       ?? "",
+      invitation_code:     body.invitation_code?.trim() || undefined,
     });
 
-    // 알림 실패가 문의 저장 실패로 이어지면 안 됨
     notifyNewLuxuryRequest(request).catch(e =>
       console.error("[MAISON PRIVÉ] 알림 발송 오류:", e)
     );

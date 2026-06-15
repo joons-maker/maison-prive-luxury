@@ -4,6 +4,8 @@ export type RequestStatus =
   | "new" | "checking" | "quoted" | "paid"
   | "sourcing" | "shipped" | "completed" | "cancelled";
 
+export type Priority = "High" | "Medium" | "Standard";
+
 export interface LuxuryRequest {
   id: string;
   name: string;
@@ -17,6 +19,7 @@ export interface LuxuryRequest {
   preferred_country: "france" | "italy" | "any";
   delivery_preference: "domestic" | "overseas" | "consult";
   message: string;
+  invitation_code?: string | null;
   status: RequestStatus;
   admin_memo: string;
   estimated_price: string;
@@ -27,7 +30,14 @@ export interface LuxuryRequest {
 export type CreateLuxuryRequestInput = Pick<LuxuryRequest,
   "name" | "phone" | "kakao_id" | "email" | "brand" | "product_name"
   | "product_image_urls" | "budget" | "preferred_country" | "delivery_preference" | "message"
->;
+> & { invitation_code?: string };
+
+export function getRequestPriority(r: Pick<LuxuryRequest, "invitation_code" | "budget">): Priority {
+  if (r.invitation_code?.trim()) return "High";
+  if (r.budget === "3,000만원 이상" || r.budget === "가격 상관없음") return "High";
+  if (r.budget === "1,000만~3,000만원") return "Medium";
+  return "Standard";
+}
 
 export async function createLuxuryRequest(input: CreateLuxuryRequestInput): Promise<LuxuryRequest> {
   const { data, error } = await getSupabaseClient(true)
@@ -86,3 +96,18 @@ export const STATUS_COLORS: Record<RequestStatus, string> = {
   completed: "text-yellow-600 bg-yellow-600/10",
   cancelled: "text-red-400 bg-red-400/10",
 };
+
+export const TRACK_STATUS_LABELS: Record<RequestStatus, { en: string; ko: string }> = {
+  new:       { en: "Request Received",      ko: "접수 완료" },
+  checking:  { en: "European Check",        ko: "현지 부티크 확인 중" },
+  quoted:    { en: "Private Quotation",     ko: "프라이빗 견적 발송" },
+  paid:      { en: "Payment Confirmed",     ko: "결제 확인" },
+  sourcing:  { en: "Boutique Sourcing",     ko: "현지 소싱 진행 중" },
+  shipped:   { en: "International Delivery",ko: "국제 배송 중" },
+  completed: { en: "Completed",             ko: "소싱 완료" },
+  cancelled: { en: "Cancelled",             ko: "취소됨" },
+};
+
+export const STATUS_ORDER: RequestStatus[] = [
+  "new", "checking", "quoted", "paid", "sourcing", "shipped", "completed",
+];
