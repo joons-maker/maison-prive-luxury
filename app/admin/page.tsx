@@ -529,7 +529,7 @@ function Dashboard({ pw }: { pw:string }) {
 // 재활성화 방법: 아래 BYPASS_AUTH를 false로 변경하고,
 // app/api/requests/route.ts 및 app/api/requests/[id]/route.ts의
 // checkAuth 함수에서 __bypass__ 조건을 삭제한다.
-const BYPASS_AUTH = true;
+const BYPASS_AUTH = false;
 
 export default function AdminPage() {
   const [pw, setPw] = useState<string|null>(null);

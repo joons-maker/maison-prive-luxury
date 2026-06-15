@@ -6,11 +6,7 @@ import {
 } from "@/lib/luxury-requests";
 
 function checkAuth(req: NextRequest) {
-  // TODO: 실제 고객정보 수집 전에는 반드시 관리자 비밀번호 보호를 다시 활성화할 것.
-  // 재활성화 방법: 아래 bypass 조건 삭제 후 환경변수 비교만 남긴다.
-  const pw = req.headers.get("x-admin-password");
-  if (pw === "__bypass__") return true;
-  return pw === process.env.LUXURY_ADMIN_PASSWORD;
+  return req.headers.get("x-admin-password") === process.env.LUXURY_ADMIN_PASSWORD;
 }
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
