@@ -1,0 +1,366 @@
+"use client";
+import { useState, useRef } from "react";
+import Link from "next/link";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+
+const inp: React.CSSProperties = {
+  width:"100%", background:"#0e0e0c",
+  border:"1px solid rgba(201,169,110,0.18)", color:"#f5f0e8",
+  padding:"0.95rem 1.1rem", fontSize:"0.87rem",
+  outline:"none", boxSizing:"border-box",
+  transition:"border-color 0.3s, background 0.3s",
+};
+const lbl: React.CSSProperties = {
+  display:"block", fontSize:"0.59rem",
+  letterSpacing:"0.22em", color:"#888880", marginBottom:"0.55rem",
+};
+const sel: React.CSSProperties = {
+  ...inp, appearance:"none", cursor:"pointer",
+};
+
+type State = "idle"|"uploading"|"submitting"|"success"|"error";
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div><label style={lbl}>{label}</label>{children}</div>;
+}
+
+function SecHead({ num, title, sub }: { num: string; title: string; sub: string }) {
+  return (
+    <div style={{ marginBottom:"2.5rem" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:"1rem", marginBottom:"0.5rem" }}>
+        <span style={{ fontFamily:"Georgia,serif", fontSize:"1.8rem",
+          color:"rgba(201,169,110,0.15)", lineHeight:1 }}>{num}</span>
+        <div>
+          <div style={{ fontSize:"0.6rem", letterSpacing:"0.28em", color:"#c9a96e" }}>{title}</div>
+          <div style={{ fontSize:"0.75rem", color:"#444440", marginTop:"2px" }}>{sub}</div>
+        </div>
+      </div>
+      <div style={{ height:"1px", background:"linear-gradient(to right,rgba(201,169,110,0.15),transparent)" }} />
+    </div>
+  );
+}
+
+export default function RequestPage() {
+  const [state, setState] = useState<State>("idle");
+  const [errMsg, setErrMsg] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string|null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [form, setForm] = useState({
+    name:"", phone:"", kakao_id:"", email:"",
+    brand:"", product_name:"", budget:"",
+    preferred_country:"any" as "france"|"italy"|"any",
+    delivery_preference:"consult" as "domestic"|"overseas"|"consult",
+    message:"",
+    _hp:"", // honeypot — 봇 감지용, 사람은 비워둠
+  });
+
+  const set = (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>) =>
+    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]; if (!f) return;
+    setUploading(true); setImageUrl(null);
+    try {
+      const fd = new FormData(); fd.append("file", f);
+      const res = await fetch("/api/upload", { method:"POST", body:fd });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error);
+      setImageUrl(j.url);
+    } catch { alert("이미지 업로드에 실패했습니다. 다시 시도해주세요."); }
+    finally { setUploading(false); }
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!agreed) { alert("개인정보 수집 및 이용에 동의해 주세요."); return; }
+    if (uploading) { alert("이미지 업로드가 완료될 때까지 기다려주세요."); return; }
+    setState("submitting"); setErrMsg("");
+    try {
+      const res = await fetch("/api/requests", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ ...form, product_image_urls: imageUrl ? [imageUrl] : [] }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error);
+      setState("success");
+    } catch (err) {
+      setErrMsg(err instanceof Error ? err.message : "문의 접수 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setState("error");
+    }
+  }
+
+  /* ── Success screen ─────────────────────────────────────── */
+  if (state === "success") return (
+    <>
+      <Nav />
+      <section style={{ minHeight:"100vh", display:"flex", alignItems:"center",
+        justifyContent:"center", padding:"8rem 2rem", textAlign:"center", position:"relative", overflow:"hidden" }}>
+        {/* Background glow */}
+        <div style={{ position:"absolute", inset:0,
+          background:"radial-gradient(ellipse 70% 60% at 50% 45%, rgba(201,169,110,0.05) 0%, transparent 70%)",
+          pointerEvents:"none" }} />
+
+        <div style={{ position:"relative", maxWidth:"580px" }}>
+          {/* Top ornament */}
+          <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center", marginBottom:"3.5rem" }}>
+            <div style={{ flex:1, maxWidth:"80px", height:"1px",
+              background:"linear-gradient(to right,transparent,rgba(201,169,110,0.45))" }} />
+            <div style={{ width:"8px", height:"8px",
+              border:"1px solid rgba(201,169,110,0.55)", transform:"rotate(45deg)", flexShrink:0 }} />
+            <div style={{ flex:1, maxWidth:"80px", height:"1px",
+              background:"linear-gradient(to left,transparent,rgba(201,169,110,0.45))" }} />
+          </div>
+
+          <div style={{ fontSize:"0.57rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"2rem" }}>
+            REQUEST RECEIVED
+          </div>
+          <h2 style={{ fontFamily:"Georgia,serif",
+            fontSize:"clamp(1.9rem,4.5vw,2.9rem)", fontWeight:400,
+            color:"#f5f0e8", marginBottom:"2rem", lineHeight:1.4 }}>
+            문의가 접수되었습니다
+          </h2>
+          <div style={{ width:"1px", height:"55px",
+            background:"linear-gradient(to bottom,rgba(201,169,110,0.5),transparent)",
+            margin:"0 auto 2.5rem" }} />
+          <p style={{ fontFamily:"Georgia,serif",
+            fontSize:"clamp(0.95rem,2vw,1.05rem)", color:"#888880",
+            lineHeight:2.1, marginBottom:"1.5rem" }}>
+            담당 컨시어지가 파리·밀라노 현지를 확인한 후<br />개별 연락드립니다.
+          </p>
+          <p style={{ fontSize:"0.82rem", color:"#3d3d38", lineHeight:1.9, marginBottom:"3.5rem" }}>
+            카카오톡 또는 이메일로 연락드리며,<br />현지 확인에 1–3 영업일이 소요될 수 있습니다.
+          </p>
+
+          <div style={{ border:"1px solid rgba(201,169,110,0.1)",
+            padding:"1.8rem 2.5rem", marginBottom:"3.5rem", background:"#0d0d0b" }}>
+            <div style={{ fontSize:"0.58rem", letterSpacing:"0.28em",
+              color:"#333330", marginBottom:"0.6rem" }}>EXPECTED RESPONSE TIME</div>
+            <div style={{ fontFamily:"Georgia,serif", fontSize:"1.05rem", color:"#c9a96e" }}>
+              1 — 3 Business Days
+            </div>
+          </div>
+
+          <div style={{ fontSize:"0.6rem", letterSpacing:"0.3em", color:"#242420" }}>
+            MAISON PRIVÉ · PARIS & MILAN
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
+  );
+
+  /* ── Request form ───────────────────────────────────────── */
+  return (
+    <>
+      <Nav />
+
+      {/* Page header */}
+      <section style={{ padding:"8rem 2rem 3rem", textAlign:"center", position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", inset:0,
+          background:"radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,169,110,0.05) 0%, transparent 65%)",
+          pointerEvents:"none" }} />
+        <div style={{ position:"relative" }}>
+          <div style={{ fontSize:"0.57rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"1.5rem" }}>
+            VIP REQUEST
+          </div>
+          <h1 style={{ fontFamily:"Georgia,serif",
+            fontSize:"clamp(2rem,4.5vw,3.2rem)", fontWeight:400, color:"#f5f0e8", marginBottom:"1.5rem" }}>
+            Private Inquiry Form
+          </h1>
+          <p style={{ fontSize:"0.87rem", color:"#555550", lineHeight:1.95,
+            maxWidth:"480px", margin:"0 auto 1rem" }}>
+            원하시는 제품을 조용히 알려주세요.<br />모든 정보는 철저히 비공개로 관리됩니다.
+          </p>
+          <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center", marginTop:"3rem" }}>
+            <div style={{ flex:1, maxWidth:"60px", height:"1px",
+              background:"linear-gradient(to right,transparent,rgba(201,169,110,0.35))" }} />
+            <div style={{ width:"5px", height:"5px",
+              border:"1px solid rgba(201,169,110,0.4)", transform:"rotate(45deg)", flexShrink:0 }} />
+            <div style={{ flex:1, maxWidth:"60px", height:"1px",
+              background:"linear-gradient(to left,transparent,rgba(201,169,110,0.35))" }} />
+          </div>
+        </div>
+      </section>
+
+      <section style={{ maxWidth:"760px", margin:"0 auto 10rem", padding:"0 2rem" }}>
+        {state === "error" && (
+          <div style={{ marginBottom:"1.5rem", padding:"1rem 1.5rem",
+            background:"rgba(239,68,68,0.06)", border:"1px solid rgba(239,68,68,0.2)",
+            color:"#f87171", fontSize:"0.84rem" }}>
+            {errMsg}
+          </div>
+        )}
+
+        <form onSubmit={onSubmit}>
+          {/* honeypot — CSS로 숨김, 봇이 채우면 서버에서 거부 */}
+          <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none" }} aria-hidden="true">
+            <input name="_hp" value={form._hp} onChange={set} tabIndex={-1} autoComplete="off" />
+          </div>
+
+          {/* 01 · Contact */}
+          <div className="lux-form-section">
+            <SecHead num="01" title="CONTACT INFORMATION" sub="연락처 정보" />
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem" }}>
+              <Field label="성함 *">
+                <input className="lux-input" style={inp} name="name" value={form.name} onChange={set} required placeholder="홍길동" />
+              </Field>
+              <Field label="연락처 *">
+                <input className="lux-input" style={inp} name="phone" value={form.phone} onChange={set} required placeholder="010-0000-0000" />
+              </Field>
+              <Field label="카카오톡 ID">
+                <input className="lux-input" style={inp} name="kakao_id" value={form.kakao_id} onChange={set} placeholder="kakao_id" />
+              </Field>
+              <Field label="이메일 주소 *">
+                <input className="lux-input" style={inp} type="email" name="email" value={form.email} onChange={set} required placeholder="your@email.com" />
+              </Field>
+            </div>
+          </div>
+
+          {/* 02 · Product */}
+          <div className="lux-form-section">
+            <SecHead num="02" title="PRODUCT DETAILS" sub="희망 제품 정보" />
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem", marginBottom:"1.2rem" }}>
+              <Field label="희망 브랜드 *">
+                <input className="lux-input" style={inp} name="brand" value={form.brand} onChange={set} required placeholder="예: Hermès" />
+              </Field>
+              <Field label="희망 제품명 *">
+                <input className="lux-input" style={inp} name="product_name" value={form.product_name} onChange={set} required placeholder="예: Birkin 30 Noir Togo" />
+              </Field>
+            </div>
+
+            {/* Image upload */}
+            <div style={{ marginBottom:"1.2rem" }}>
+              <label style={lbl}>제품 참고 이미지 (선택)</label>
+              <div
+                onClick={() => !uploading && fileRef.current?.click()}
+                style={{
+                  border:`1px dashed ${imageUrl ? "rgba(201,169,110,0.5)" : "rgba(201,169,110,0.15)"}`,
+                  background: imageUrl ? "rgba(201,169,110,0.03)" : "#0a0a0a",
+                  padding:"2.5rem 1.5rem", textAlign:"center", cursor:"pointer",
+                  transition:"border-color 0.3s, background 0.3s", position:"relative",
+                }}>
+                <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={onFile} />
+                {uploading ? (
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"0.8rem" }}>
+                    <div style={{ width:"20px", height:"20px", border:"1px solid rgba(201,169,110,0.4)",
+                      borderTopColor:"#c9a96e", borderRadius:"50%", animation:"spinSlow 0.8s linear infinite" }} />
+                    <span style={{ fontSize:"0.73rem", color:"#c9a96e" }}>업로드 중...</span>
+                  </div>
+                ) : imageUrl ? (
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"1rem" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imageUrl} alt="uploaded" style={{ maxHeight:"120px", maxWidth:"100%", objectFit:"contain" }} />
+                    <span style={{ fontSize:"0.68rem", color:"#c9a96e", letterSpacing:"0.12em" }}>
+                      ✦ 업로드 완료 · 클릭하여 변경
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"0.8rem" }}>
+                    <div style={{ fontSize:"1.4rem", color:"rgba(201,169,110,0.25)" }}>◈</div>
+                    <span style={{ fontSize:"0.73rem", color:"#3a3a35" }}>
+                      클릭하여 이미지 업로드
+                    </span>
+                    <span style={{ fontSize:"0.63rem", color:"#252520", letterSpacing:"0.1em" }}>
+                      JPG · PNG · WEBP · 최대 10MB
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Budget select */}
+            <Field label="예상 예산 *">
+              <div style={{ position:"relative" }}>
+                <select className="lux-input" style={sel} name="budget" value={form.budget} onChange={set} required>
+                  <option value="">예산 범위를 선택해주세요</option>
+                  <option value="500만원 이하">500만원 이하</option>
+                  <option value="500만~1,000만원">500만 ~ 1,000만원</option>
+                  <option value="1,000만~3,000만원">1,000만 ~ 3,000만원</option>
+                  <option value="3,000만원 이상">3,000만원 이상</option>
+                  <option value="가격 상관없음">가격 상관없음 (최상급 우선)</option>
+                </select>
+                <span style={{ position:"absolute", right:"1rem", top:"50%",
+                  transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+              </div>
+            </Field>
+          </div>
+
+          {/* 03 · Preferences */}
+          <div className="lux-form-section">
+            <SecHead num="03" title="PREFERENCES" sub="소싱 선호 사항" />
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem" }}>
+              <Field label="희망 소싱 국가">
+                <div style={{ position:"relative" }}>
+                  <select className="lux-input" style={sel} name="preferred_country" value={form.preferred_country} onChange={set}>
+                    <option value="france">프랑스 (파리)</option>
+                    <option value="italy">이탈리아 (밀라노)</option>
+                    <option value="any">상관없음 · 최적 국가 선택</option>
+                  </select>
+                  <span style={{ position:"absolute", right:"1rem", top:"50%",
+                    transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+                </div>
+              </Field>
+              <Field label="수령 방식">
+                <div style={{ position:"relative" }}>
+                  <select className="lux-input" style={sel} name="delivery_preference" value={form.delivery_preference} onChange={set}>
+                    <option value="domestic">국내 수령 (국제 특송)</option>
+                    <option value="overseas">해외 현지 직접 수령</option>
+                    <option value="consult">상담 후 결정</option>
+                  </select>
+                  <span style={{ position:"absolute", right:"1rem", top:"50%",
+                    transform:"translateY(-50%)", color:"#c9a96e", pointerEvents:"none" }}>▾</span>
+                </div>
+              </Field>
+            </div>
+          </div>
+
+          {/* 04 · Message */}
+          <div className="lux-form-section">
+            <SecHead num="04" title="REQUEST MESSAGE" sub="추가 요청 사항" />
+            <Field label="요청 내용">
+              <textarea className="lux-input"
+                style={{ ...inp, resize:"vertical", minHeight:"140px" }}
+                name="message" value={form.message} onChange={set}
+                placeholder="원하시는 컬러, 사이즈, 하드웨어 옵션, 특이 사항 등을 자유롭게 적어주세요." />
+            </Field>
+          </div>
+
+          {/* Privacy & submit */}
+          <div style={{ padding:"2.5rem 0" }}>
+            <label style={{ display:"flex", alignItems:"flex-start", gap:"0.85rem",
+              cursor:"pointer", fontSize:"0.77rem", color:"#444440", lineHeight:1.85 }}>
+              <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
+                style={{ marginTop:"3px", accentColor:"#c9a96e", flexShrink:0 }} />
+              <span>
+                수집된 개인정보는 문의 처리 목적으로만 사용되며 서비스 완료 후 파기됩니다.&nbsp;
+                <Link href="/privacy" style={{ color:"#c9a96e", textDecoration:"none" }}>개인정보처리방침</Link> 및&nbsp;
+                <Link href="/terms" style={{ color:"#c9a96e", textDecoration:"none" }}>이용약관</Link>에 동의합니다. *
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" disabled={state==="submitting"}
+            style={{ width:"100%",
+              background: state==="submitting" ? "#7a6030" : "#c9a96e",
+              color:"#0a0a0a", border:"none",
+              padding:"1.2rem", fontSize:"0.72rem",
+              letterSpacing:"0.28em", fontWeight:700,
+              cursor: state==="submitting" ? "not-allowed" : "pointer",
+              transition:"background 0.3s" }}>
+            {state === "submitting" ? "처리 중..." : "VIP REQUEST 제출하기"}
+          </button>
+        </form>
+
+        <p style={{ textAlign:"center", fontSize:"0.68rem", color:"#222220",
+          marginTop:"2.5rem", lineHeight:1.9 }}>
+          본 서비스는 공식 브랜드 대리점이 아닌 프라이빗 소싱 컨시어지 서비스입니다.
+        </p>
+      </section>
+      <Footer />
+    </>
+  );
+}
