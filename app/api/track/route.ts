@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await getSupabaseClient(true)
     .from("luxury_requests")
-    .select("id, brand, product_name, status, created_at, phone")
+    .select("id, brand, product_name, status, created_at, phone, payment_status, total_payment_amount, payment_due_date, payment_note")
     .eq("id", requestId)
     .single();
 
@@ -26,11 +26,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "요청 정보를 확인할 수 없습니다." }, { status: 404 });
   }
 
+  const paymentVisible = ["requested", "paid"].includes(data.payment_status ?? "");
+
   return NextResponse.json({
     id:           data.id,
     brand:        data.brand,
     product_name: data.product_name,
     status:       data.status,
     created_at:   data.created_at,
+    ...(paymentVisible ? {
+      payment_status:       data.payment_status,
+      total_payment_amount: data.total_payment_amount,
+      payment_due_date:     data.payment_due_date,
+      payment_note:         data.payment_note,
+    } : {}),
   });
 }

@@ -17,6 +17,10 @@ interface TrackResult {
   product_name: string;
   status: RequestStatus;
   created_at: string;
+  payment_status?:       string;
+  total_payment_amount?: number | null;
+  payment_due_date?:     string | null;
+  payment_note?:         string | null;
 }
 
 const fmt = (iso: string) =>
@@ -244,6 +248,89 @@ export default function TrackPage() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* ── 결제 요청 패널 ───────────────────────────────── */}
+            {result.payment_status && ["requested","paid"].includes(result.payment_status) && (
+              <div style={{ marginTop: "3rem", border: "1px solid rgba(201,169,110,0.25)",
+                background: "#0b0b09", animation: "fadeIn 0.5s ease" }}>
+                {/* 헤더 */}
+                <div style={{ padding: "1.4rem 2rem",
+                  borderBottom: "1px solid rgba(201,169,110,0.1)",
+                  background: "linear-gradient(135deg, rgba(201,169,110,0.05) 0%, transparent 60%)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.3rem" }}>
+                    <div style={{ width: "6px", height: "6px",
+                      background: result.payment_status === "paid" ? "rgba(100,200,100,0.8)" : "#c9a96e",
+                      borderRadius: "50%",
+                      animation: result.payment_status === "requested" ? "pulse 1.8s ease-in-out infinite" : "none" }} />
+                    <div style={{ fontSize: "0.55rem", letterSpacing: "0.35em",
+                      color: result.payment_status === "paid" ? "#88cc88" : "#c9a96e" }}>
+                      {result.payment_status === "paid" ? "PAYMENT CONFIRMED" : "PRIVATE PAYMENT REQUEST"}
+                    </div>
+                  </div>
+                  <p style={{ fontSize: "0.78rem", color: "#666660", lineHeight: 1.8, paddingLeft: "1rem" }}>
+                    {result.payment_status === "paid"
+                      ? "결제가 확인되었습니다. 현지 소싱을 진행합니다."
+                      : "담당 컨시어지가 Private Payment Request를 발행하였습니다."}
+                  </p>
+                </div>
+
+                {/* 결제 금액 & 기한 */}
+                <div style={{ padding: "1.6rem 2rem", borderBottom: "1px solid rgba(201,169,110,0.07)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                    {result.total_payment_amount != null && (
+                      <div>
+                        <div style={{ fontSize: "0.52rem", letterSpacing: "0.22em", color: "#333330", marginBottom: "0.5rem" }}>
+                          TOTAL AMOUNT
+                        </div>
+                        <div style={{ fontFamily: "Georgia,serif", fontSize: "1.35rem", color: "#c9a96e", letterSpacing: "0.03em" }}>
+                          ₩{result.total_payment_amount.toLocaleString("ko-KR")}
+                        </div>
+                        <div style={{ fontSize: "0.58rem", color: "#2a2a25", marginTop: "0.25rem" }}>
+                          현지가 · 소싱수수료 · 배송 · 관세 포함
+                        </div>
+                      </div>
+                    )}
+                    {result.payment_due_date && (
+                      <div>
+                        <div style={{ fontSize: "0.52rem", letterSpacing: "0.22em", color: "#333330", marginBottom: "0.5rem" }}>
+                          PAYMENT DUE
+                        </div>
+                        <div style={{ fontFamily: "Georgia,serif", fontSize: "1rem", color: "#f5f0e8" }}>
+                          {new Date(result.payment_due_date).toLocaleDateString("ko-KR", {
+                            year: "numeric", month: "long", day: "numeric"
+                          })}
+                        </div>
+                        <div style={{ fontSize: "0.58rem", color: "#2a2a25", marginTop: "0.25rem" }}>
+                          결제 기한
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 입금 안내 */}
+                {result.payment_note && (
+                  <div style={{ padding: "1.4rem 2rem", borderBottom: "1px solid rgba(201,169,110,0.07)" }}>
+                    <div style={{ fontSize: "0.52rem", letterSpacing: "0.22em", color: "#333330", marginBottom: "0.8rem" }}>
+                      PAYMENT INSTRUCTIONS
+                    </div>
+                    <pre style={{ fontSize: "0.78rem", color: "#555550", lineHeight: 1.9,
+                      fontFamily: "inherit", whiteSpace: "pre-wrap", margin: 0 }}>
+                      {result.payment_note}
+                    </pre>
+                  </div>
+                )}
+
+                {/* 안내 문구 */}
+                <div style={{ padding: "1.2rem 2rem" }}>
+                  <p style={{ fontSize: "0.7rem", color: "#2e2e29", lineHeight: 1.9 }}>
+                    {result.payment_status === "paid"
+                      ? "결제 확인 후 담당 컨시어지가 현지 부티크 소싱을 시작합니다. 진행 상황은 개별 연락드립니다."
+                      : "입금 완료 후 담당 컨시어지에게 카카오톡 또는 이메일로 확인 연락 주시면 즉시 소싱을 진행합니다."}
+                  </p>
                 </div>
               </div>
             )}

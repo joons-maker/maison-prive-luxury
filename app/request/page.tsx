@@ -272,6 +272,49 @@ export default function RequestPage() {
         </div>
       </section>
 
+      {/* ── Process Disclaimer ───────────────────────── */}
+      <FadeUp style={{ maxWidth:"760px", margin:"0 auto 2rem", padding:"0 2rem" }}>
+        <div style={{ background:"#090907", border:"1px solid rgba(201,169,110,0.07)",
+          padding:"2rem 2.5rem" }}>
+          <div style={{ fontSize:"0.55rem", letterSpacing:"0.36em", color:"rgba(201,169,110,0.5)",
+            marginBottom:"1.4rem" }}>HOW IT WORKS — OPERATIONAL FLOW</div>
+          <div style={{ display:"flex", gap:"0 1rem", flexWrap:"wrap" }}>
+            {[
+              { n:"01", t:"Private Request",  ko:"비공개 문의 접수" },
+              { n:"02", t:"European Check",   ko:"현지 재고 확인" },
+              { n:"03", t:"Private Brief",    ko:"견적서 발송" },
+              { n:"04", t:"Client Approval",  ko:"고객 승인" },
+              { n:"05", t:"Payment Request",  ko:"결제 요청서 발행" },
+              { n:"06", t:"Purchase",         ko:"현지 부티크 구매" },
+              { n:"07", t:"Delivery",         ko:"국제 특송 발송" },
+            ].map((s, i, arr) => (
+              <div key={s.n} style={{ display:"flex", alignItems:"center", gap:"0.5rem",
+                marginBottom:"0.3rem" }}>
+                <span style={{ fontSize:"0.55rem", color:"rgba(201,169,110,0.35)",
+                  fontFamily:"Georgia,serif" }}>{s.n}</span>
+                <span style={{ fontSize:"0.62rem", color:"#3a3a35", letterSpacing:"0.06em" }}>{s.ko}</span>
+                {i < arr.length - 1 && (
+                  <span style={{ fontSize:"0.55rem", color:"rgba(201,169,110,0.15)", margin:"0 0.1rem" }}>›</span>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ height:"1px", background:"rgba(201,169,110,0.06)", margin:"1.4rem 0 1.2rem" }} />
+          <ul style={{ listStyle:"none", display:"grid", gap:"0.55rem" }}>
+            {[
+              "본 문의는 소싱 진행 의사 확인을 위한 것이며, 문의 접수만으로 구매가 확정되지 않습니다.",
+              "현지 재고 및 가격은 변동될 수 있으며, Private Brief 발송 후 고객 승인을 받아 진행합니다.",
+              "결제는 고객 승인 이후 발행되는 결제 요청서에 따라 진행됩니다.",
+            ].map((t, i) => (
+              <li key={i} style={{ display:"flex", gap:"0.65rem", alignItems:"flex-start" }}>
+                <span style={{ color:"rgba(201,169,110,0.3)", fontSize:"0.6rem", marginTop:"1px", flexShrink:0 }}>◈</span>
+                <span style={{ fontSize:"0.72rem", color:"#333330", lineHeight:1.85 }}>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </FadeUp>
+
       {/* ── Concierge Promise ─────────────────────────── */}
       <FadeUp style={{ maxWidth:"760px", margin:"0 auto 3rem", padding:"0 2rem" }}>
         <div style={{ border:"1px solid rgba(201,169,110,0.1)", background:"#0d0d0b",

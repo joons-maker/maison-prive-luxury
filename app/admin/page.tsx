@@ -1,12 +1,20 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import type { LuxuryRequest, RequestStatus, Priority } from "@/lib/luxury-requests";
+import type { LuxuryRequest, RequestStatus, Priority, PaymentStatus } from "@/lib/luxury-requests";
 import { STATUS_LABELS, STATUS_COLORS, getRequestPriority } from "@/lib/luxury-requests";
 
 const KEY = "mp_admin_pw";
 const ALL: RequestStatus[] = ["new","checking","quoted","paid","sourcing","shipped","completed","cancelled"];
 const C_LABEL = { france:"프랑스", italy:"이탈리아", any:"상관없음" } as const;
 const D_LABEL = { domestic:"국내 수령", overseas:"해외 직접 수령", consult:"상담 후 결정" } as const;
+const PAY_STATUS_LABELS: Record<PaymentStatus, { label: string; color: string; bg: string; border: string }> = {
+  not_requested: { label:"결제 요청 전",   color:"#444440", bg:"rgba(80,80,75,0.06)",    border:"rgba(80,80,75,0.2)" },
+  requested:     { label:"결제 요청됨",    color:"#c9a96e", bg:"rgba(201,169,110,0.08)", border:"rgba(201,169,110,0.4)" },
+  paid:          { label:"입금 확인",      color:"#88cc88", bg:"rgba(100,200,100,0.07)", border:"rgba(100,200,100,0.35)" },
+  cancelled:     { label:"결제 취소",      color:"#f87171", bg:"rgba(239,68,68,0.06)",   border:"rgba(239,68,68,0.25)" },
+  refunded:      { label:"환불 완료",      color:"#999990", bg:"rgba(80,80,75,0.05)",    border:"rgba(80,80,75,0.2)" },
+};
+
 const PRIORITY_COLORS: Record<Priority, { border: string; color: string; bg: string }> = {
   High:     { border:"rgba(201,169,110,0.5)", color:"#c9a96e",  bg:"rgba(201,169,110,0.08)" },
   Medium:   { border:"rgba(230,220,190,0.3)", color:"#cfc8a8",  bg:"rgba(230,220,190,0.06)" },
@@ -90,6 +98,16 @@ function Dashboard({ pw }: { pw:string }) {
   const [saveState,   setSaveState]   = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [brief,       setBrief]       = useState("");
   const [briefCopied, setBriefCopied] = useState(false);
+  /* ── Payment state ── */
+  const [payAmt,       setPayAmt]       = useState<number|null>(null);
+  const [srcFee,       setSrcFee]       = useState<number|null>(null);
+  const [shipFee,      setShipFee]      = useState<number|null>(null);
+  const [taxEst,       setTaxEst]       = useState<number|null>(null);
+  const [payTotal,     setPayTotal]     = useState<number|null>(null);
+  const [payDue,       setPayDue]       = useState("");
+  const [payNote,      setPayNote]      = useState("");
+  const [payStatus,    setPayStatus]    = useState<PaymentStatus>("not_requested");
+  const [paySaveState, setPaySaveState] = useState<"idle"|"saving"|"saved"|"error">("idle");
 
   const load = useCallback(async()=>{
     setLoading(true);
@@ -108,6 +126,15 @@ function Dashboard({ pw }: { pw:string }) {
   function select(r:LuxuryRequest){
     setSel(r); setNote(r.admin_memo??""); setQuote(r.estimated_price??"");
     setSaveState("idle"); setBrief(""); setBriefCopied(false);
+    setPayAmt(r.estimate_amount ?? null);
+    setSrcFee(r.sourcing_fee ?? null);
+    setShipFee(r.shipping_fee ?? null);
+    setTaxEst(r.tax_estimate ?? null);
+    setPayTotal(r.total_payment_amount ?? null);
+    setPayDue(r.payment_due_date ?? "");
+    setPayNote(r.payment_note ?? "");
+    setPayStatus(r.payment_status ?? "not_requested");
+    setPaySaveState("idle");
   }
 
   async function changeStatus(id:string, status:RequestStatus){
@@ -124,6 +151,40 @@ function Dashboard({ pw }: { pw:string }) {
       setSaveState("saved"); setTimeout(()=>setSaveState("idle"),2500);
       setRequests(p=>p.map(r=>r.id===sel.id?{...r,admin_memo:note,estimated_price:quote}:r));
     } catch { setSaveState("error"); }
+  }
+
+  async function savePayment(overrideStatus?: PaymentStatus) {
+    if (!sel) return;
+    setPaySaveState("saving");
+    const autoSum = (payAmt||0) + (srcFee||0) + (shipFee||0) + (taxEst||0);
+    const finalTotal = payTotal ?? (autoSum > 0 ? autoSum : null);
+    const status = overrideStatus ?? payStatus;
+    try {
+      const res = await api(`/api/requests/${sel.id}`, pw, {
+        method: "PATCH",
+        body: JSON.stringify({
+          estimate_amount:      payAmt,
+          sourcing_fee:         srcFee,
+          shipping_fee:         shipFee,
+          tax_estimate:         taxEst,
+          total_payment_amount: finalTotal,
+          payment_status:       status,
+          payment_due_date:     payDue || null,
+          payment_note:         payNote || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setPayTotal(finalTotal);
+      setPayStatus(status);
+      setPaySaveState("saved");
+      setTimeout(() => setPaySaveState("idle"), 2500);
+      setRequests(p => p.map(r => r.id === sel.id
+        ? { ...r, estimate_amount:payAmt, sourcing_fee:srcFee, shipping_fee:shipFee,
+            tax_estimate:taxEst, total_payment_amount:finalTotal,
+            payment_status:status, payment_due_date:payDue||null, payment_note:payNote||null }
+        : r));
+      setSel(p => p ? { ...p, payment_status: status } : p);
+    } catch { setPaySaveState("error"); }
   }
 
   function copyBrief() {
@@ -300,6 +361,121 @@ function Dashboard({ pw }: { pw:string }) {
               <button onClick={save} disabled={saveState==="saving"} style={{ background:saveState==="saved"?"#1a3a1a":saveState==="error"?"#3a1a1a":saveState==="saving"?"#8a7040":"#c9a96e", color:saveState==="saved"?"#88cc88":saveState==="error"?"#f87171":"#0a0a0a", border:"none", padding:"0.72rem 2.2rem", fontSize:"0.68rem", letterSpacing:"0.15em", cursor:saveState==="saving"?"not-allowed":"pointer", fontWeight:500 }}>
                 {saveState==="saving"?"저장 중...":saveState==="saved"?"저장됨 ✓":saveState==="error"?"저장 실패 ✕":"저장"}
               </button>
+            </div>
+
+            {/* ── 결제 요청 관리 ── */}
+            <div style={{ padding:"1.5rem", background:"#111111", border:"1px solid rgba(201,169,110,0.09)", marginBottom:"1.5rem" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.4rem" }}>
+                <div>
+                  <div style={{ fontSize:"0.58rem", letterSpacing:"0.2em", color:"#c9a96e" }}>PAYMENT REQUEST</div>
+                  <div style={{ fontSize:"0.62rem", color:"#333330", marginTop:"2px" }}>결제 요청 관리</div>
+                </div>
+                {/* 결제 상태 배지 */}
+                {(() => {
+                  const ps = PAY_STATUS_LABELS[payStatus];
+                  return (
+                    <span style={{ fontSize:"0.58rem", padding:"0.15rem 0.6rem",
+                      border:`1px solid ${ps.border}`, color:ps.color, background:ps.bg,
+                      letterSpacing:"0.08em" }}>{ps.label}</span>
+                  );
+                })()}
+              </div>
+
+              {/* 금액 필드 */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem", marginBottom:"0.9rem" }}>
+                {([
+                  ["현지 구매가 (₩)", payAmt, setPayAmt],
+                  ["소싱 수수료 (₩)", srcFee, setSrcFee],
+                  ["배송비 (₩)", shipFee, setShipFee],
+                  ["관세 예상 (₩)", taxEst, setTaxEst],
+                ] as [string, number|null, (v:number|null)=>void][]).map(([label, val, setter]) => (
+                  <div key={label}>
+                    <label style={{ display:"block", fontSize:"0.55rem", letterSpacing:"0.1em", color:"#444440", marginBottom:"0.3rem" }}>{label}</label>
+                    <input
+                      type="number" min="0" value={val ?? ""}
+                      onChange={e => setter(e.target.value ? Number(e.target.value) : null)}
+                      placeholder="0"
+                      style={{ width:"100%", background:"#161616", border:"1px solid rgba(201,169,110,0.1)", color:"#f5f0e8", padding:"0.55rem 0.8rem", fontSize:"0.8rem", outline:"none", boxSizing:"border-box" as const }} />
+                  </div>
+                ))}
+              </div>
+
+              {/* 자동 합계 */}
+              {(payAmt||0)+(srcFee||0)+(shipFee||0)+(taxEst||0) > 0 && (
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
+                  padding:"0.6rem 0.8rem", background:"rgba(201,169,110,0.04)", marginBottom:"0.9rem",
+                  border:"1px solid rgba(201,169,110,0.07)" }}>
+                  <span style={{ fontSize:"0.58rem", color:"#444440" }}>자동 합계</span>
+                  <span style={{ fontSize:"0.82rem", color:"#c9a96e", fontFamily:"Georgia,serif" }}>
+                    ₩{((payAmt||0)+(srcFee||0)+(shipFee||0)+(taxEst||0)).toLocaleString("ko-KR")}
+                  </span>
+                </div>
+              )}
+
+              {/* 최종 결제 금액 */}
+              <div style={{ marginBottom:"0.9rem" }}>
+                <label style={{ display:"block", fontSize:"0.55rem", letterSpacing:"0.1em", color:"#c9a96e", marginBottom:"0.3rem" }}>
+                  최종 결제 금액 (₩) — 고객에게 노출
+                </label>
+                <input
+                  type="number" min="0" value={payTotal ?? ""}
+                  onChange={e => setPayTotal(e.target.value ? Number(e.target.value) : null)}
+                  placeholder="미입력 시 자동 합계 사용"
+                  style={{ width:"100%", background:"#161616", border:"1px solid rgba(201,169,110,0.2)", color:"#f5f0e8", padding:"0.65rem 0.9rem", fontSize:"0.85rem", outline:"none", boxSizing:"border-box" as const }} />
+              </div>
+
+              {/* 결제 기한 */}
+              <div style={{ marginBottom:"0.9rem" }}>
+                <label style={{ display:"block", fontSize:"0.55rem", letterSpacing:"0.1em", color:"#444440", marginBottom:"0.3rem" }}>결제 기한</label>
+                <input
+                  type="date" value={payDue}
+                  onChange={e => setPayDue(e.target.value)}
+                  style={{ background:"#161616", border:"1px solid rgba(201,169,110,0.1)", color:"#f5f0e8", padding:"0.55rem 0.8rem", fontSize:"0.8rem", outline:"none", colorScheme:"dark" }} />
+              </div>
+
+              {/* 결제 안내 문구 (계좌번호 포함) */}
+              <div style={{ marginBottom:"1.2rem" }}>
+                <label style={{ display:"block", fontSize:"0.55rem", letterSpacing:"0.1em", color:"#444440", marginBottom:"0.3rem" }}>
+                  결제 안내 문구 (계좌번호 포함 — 고객에게 노출)
+                </label>
+                <textarea
+                  value={payNote} onChange={e => setPayNote(e.target.value)} rows={4}
+                  placeholder={"예:\n은행: 신한은행\n계좌: 110-123-456789\n예금주: 마이손프리베\n\n입금 후 카카오톡으로 확인 연락 주세요."}
+                  style={{ width:"100%", background:"#161616", border:"1px solid rgba(201,169,110,0.1)", color:"#f5f0e8", padding:"0.75rem 1rem", fontSize:"0.78rem", outline:"none", resize:"vertical", boxSizing:"border-box" as const, lineHeight:1.8 }} />
+              </div>
+
+              {/* 버튼 */}
+              <div style={{ display:"flex", gap:"0.65rem", flexWrap:"wrap" }}>
+                <button
+                  onClick={() => savePayment()}
+                  disabled={paySaveState === "saving"}
+                  style={{ background:paySaveState==="saved"?"#1a3a1a":paySaveState==="error"?"#3a1a1a":"rgba(201,169,110,0.1)",
+                    color:paySaveState==="saved"?"#88cc88":paySaveState==="error"?"#f87171":"#c9a96e",
+                    border:`1px solid ${paySaveState==="saved"?"rgba(100,200,100,0.3)":paySaveState==="error"?"rgba(239,68,68,0.3)":"rgba(201,169,110,0.3)"}`,
+                    padding:"0.6rem 1.4rem", fontSize:"0.65rem", letterSpacing:"0.12em", cursor:"pointer" }}>
+                  {paySaveState==="saving"?"저장 중...":paySaveState==="saved"?"저장됨 ✓":paySaveState==="error"?"저장 실패 ✕":"저장"}
+                </button>
+                <button
+                  onClick={() => savePayment("requested")}
+                  disabled={(!payTotal && (payAmt||0)+(srcFee||0)+(shipFee||0)+(taxEst||0) === 0) || !payDue || paySaveState==="saving"}
+                  style={{ background:payStatus==="requested"?"rgba(201,169,110,0.15)":"#c9a96e",
+                    color:payStatus==="requested"?"#c9a96e":"#0a0a0a",
+                    border:`1px solid ${payStatus==="requested"?"rgba(201,169,110,0.4)":"#c9a96e"}`,
+                    padding:"0.6rem 1.6rem", fontSize:"0.65rem", letterSpacing:"0.15em",
+                    cursor:"pointer", fontWeight:600, opacity:(!payTotal && (payAmt||0)+(srcFee||0)+(shipFee||0)+(taxEst||0) === 0) || !payDue ? 0.35 : 1 }}>
+                  {payStatus==="requested" ? "◆ 결제 요청 중" : "◆ 결제 요청 생성"}
+                </button>
+                {payStatus !== "not_requested" && (
+                  <button
+                    onClick={() => savePayment("paid")}
+                    style={{ background:payStatus==="paid"?"rgba(100,200,100,0.1)":"none",
+                      color:payStatus==="paid"?"#88cc88":"#444440",
+                      border:`1px solid ${payStatus==="paid"?"rgba(100,200,100,0.3)":"rgba(80,80,75,0.3)"}`,
+                      padding:"0.6rem 1.2rem", fontSize:"0.65rem", letterSpacing:"0.1em", cursor:"pointer" }}>
+                    {payStatus==="paid" ? "입금 확인됨 ✓" : "입금 확인"}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Private Brief 생성 */}

@@ -4,6 +4,9 @@ export type RequestStatus =
   | "new" | "checking" | "quoted" | "paid"
   | "sourcing" | "shipped" | "completed" | "cancelled";
 
+export type PaymentStatus =
+  | "not_requested" | "requested" | "paid" | "cancelled" | "refunded";
+
 export type Priority = "High" | "Medium" | "Standard";
 
 export interface LuxuryRequest {
@@ -25,6 +28,15 @@ export interface LuxuryRequest {
   estimated_price: string;
   created_at: string;
   updated_at: string;
+  /* ── Payment fields ── */
+  estimate_amount?:      number | null;
+  sourcing_fee?:         number | null;
+  shipping_fee?:         number | null;
+  tax_estimate?:         number | null;
+  total_payment_amount?: number | null;
+  payment_status?:       PaymentStatus;
+  payment_due_date?:     string | null;
+  payment_note?:         string | null;
 }
 
 export type CreateLuxuryRequestInput = Pick<LuxuryRequest,
@@ -78,6 +90,24 @@ export async function updateLuxuryRequestAdminFields(
   const { error } = await getSupabaseClient(true)
     .from("luxury_requests").update(fields).eq("id", id);
   if (error) throw new Error(`관리자 정보 저장 실패: ${error.message}`);
+}
+
+export async function updatePaymentFields(
+  id: string,
+  fields: {
+    estimate_amount?:      number | null;
+    sourcing_fee?:         number | null;
+    shipping_fee?:         number | null;
+    tax_estimate?:         number | null;
+    total_payment_amount?: number | null;
+    payment_status?:       PaymentStatus;
+    payment_due_date?:     string | null;
+    payment_note?:         string | null;
+  }
+): Promise<void> {
+  const { error } = await getSupabaseClient(true)
+    .from("luxury_requests").update(fields).eq("id", id);
+  if (error) throw new Error(`결제 정보 저장 실패: ${error.message}`);
 }
 
 export const STATUS_LABELS: Record<RequestStatus, string> = {

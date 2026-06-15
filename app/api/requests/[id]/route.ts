@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   getLuxuryRequestById, updateLuxuryRequestStatus,
-  updateLuxuryRequestAdminFields, type RequestStatus,
+  updateLuxuryRequestAdminFields, updatePaymentFields,
+  type RequestStatus, type PaymentStatus,
 } from "@/lib/luxury-requests";
 
 function checkAuth(req: NextRequest) {
@@ -24,6 +25,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       await updateLuxuryRequestAdminFields(params.id, {
         admin_memo: body.admin_memo, estimated_price: body.estimated_price,
       });
+    if (
+      body.payment_status !== undefined ||
+      body.estimate_amount !== undefined ||
+      body.sourcing_fee    !== undefined ||
+      body.shipping_fee    !== undefined ||
+      body.tax_estimate    !== undefined ||
+      body.total_payment_amount !== undefined ||
+      body.payment_due_date !== undefined ||
+      body.payment_note   !== undefined
+    ) {
+      await updatePaymentFields(params.id, {
+        estimate_amount:      body.estimate_amount      ?? null,
+        sourcing_fee:         body.sourcing_fee         ?? null,
+        shipping_fee:         body.shipping_fee         ?? null,
+        tax_estimate:         body.tax_estimate         ?? null,
+        total_payment_amount: body.total_payment_amount ?? null,
+        payment_status:       body.payment_status as PaymentStatus | undefined,
+        payment_due_date:     body.payment_due_date     ?? null,
+        payment_note:         body.payment_note         ?? null,
+      });
+    }
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "업데이트 실패" }, { status: 500 });

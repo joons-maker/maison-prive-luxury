@@ -3,11 +3,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const steps = [
-  { num: "01", title: "Request",  desc: "비공개 폼으로 원하는 제품을 접수합니다." },
-  { num: "02", title: "Verify",   desc: "현지 파트너가 재고를 직접 확인합니다." },
-  { num: "03", title: "Quote",    desc: "모든 비용 포함 투명한 견적을 발송합니다." },
-  { num: "04", title: "Source",   desc: "공식 부티크에서 직접 구매를 진행합니다." },
-  { num: "05", title: "Deliver",  desc: "보험 처리된 국제 특송으로 전달됩니다." },
+  { num: "01", title: "Private Request",   desc: "비공개 폼으로 원하는 제품을 조용히 접수합니다." },
+  { num: "02", title: "European Check",    desc: "현지 파트너가 파리·밀라노 부티크 재고를 직접 확인합니다." },
+  { num: "03", title: "Private Brief",     desc: "현지가·소싱비·관세 포함 투명한 Private Brief를 발송합니다." },
+  { num: "04", title: "Client Approval",   desc: "고객께서 견적을 검토하신 후 소싱 진행 여부를 결정합니다." },
+  { num: "05", title: "Payment Request",   desc: "승인 후 총 결제 금액과 기한을 담은 결제 요청서가 발행됩니다." },
+  { num: "06", title: "Boutique Purchase", desc: "입금 확인 즉시 현지 공식 부티크에서 직접 구매를 진행합니다." },
+  { num: "07", title: "Private Delivery",  desc: "보험 처리된 국제 특송으로 안전하게 전달됩니다." },
 ];
 
 export default function ProcessSteps() {
