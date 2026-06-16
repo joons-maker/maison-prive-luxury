@@ -276,6 +276,36 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Private Client Welcome ──────────────────────── */}
+      <section style={{ background:"#0a0a0a", padding:"7rem 2rem",
+        borderBottom:"1px solid rgba(201,169,110,0.07)", position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", inset:0,
+          background:"radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,169,110,0.04) 0%, transparent 70%)",
+          pointerEvents:"none" }} />
+        <FadeUp style={{ maxWidth:"680px", margin:"0 auto", textAlign:"center", position:"relative" }}>
+          <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center", marginBottom:"2rem" }}>
+            <div style={{ flex:1, maxWidth:"70px", height:"1px",
+              background:"linear-gradient(to right,transparent,rgba(201,169,110,0.4))" }} />
+            <div style={{ width:"6px", height:"6px",
+              border:"1px solid rgba(201,169,110,0.5)", transform:"rotate(45deg)", flexShrink:0 }} />
+            <div style={{ flex:1, maxWidth:"70px", height:"1px",
+              background:"linear-gradient(to left,transparent,rgba(201,169,110,0.4))" }} />
+          </div>
+          <div style={{ fontSize:"0.54rem", letterSpacing:"0.5em", color:"rgba(201,169,110,0.6)", marginBottom:"1.8rem" }}>
+            TO OUR PRIVATE CLIENTS
+          </div>
+          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(1.5rem,3.2vw,2.1rem)",
+            fontWeight:400, color:"#f5f0e8", lineHeight:1.6, marginBottom:"2rem" }}>
+            이 페이지는 누구나 볼 수 있지만,<br />이곳에서 진행되는 모든 일은 그렇지 않습니다.
+          </h2>
+          <p style={{ fontSize:"0.85rem", color:"#666660", lineHeight:2.05, maxWidth:"480px", margin:"0 auto" }}>
+            MAISON PRIVÉ는 불특정 다수를 대상으로 제품을 판매하지 않습니다.
+            문의를 남기신 순간부터, 고객님의 요청은 오직 전담 컨시어지 한 사람만이 확인합니다.
+            진행 상황은 비공개 Private Client Room에서만 공유되며, 외부에 노출되지 않습니다.
+          </p>
+        </FadeUp>
+      </section>
+
       {/* ── Brand Statement ─────────────────────────────── */}
       <FadeUp style={{ maxWidth:"900px", margin:"7rem auto", padding:"0 2rem", textAlign:"center" }}>
         <div style={{ fontSize:"0.56rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"2rem" }}>
@@ -382,6 +412,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── What We Do Not Do ────────────────────────────── */}
+      <section style={{ background:"#0a0a0a", padding:"7rem 2rem",
+        borderTop:"1px solid rgba(201,169,110,0.07)", borderBottom:"1px solid rgba(201,169,110,0.07)" }}>
+        <div style={{ maxWidth:"880px", margin:"0 auto" }}>
+          <FadeUp style={{ textAlign:"center", marginBottom:"4rem" }}>
+            <div style={{ fontSize:"0.56rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"1.5rem" }}>
+              WHAT WE DO NOT DO
+            </div>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(1.6rem,3.5vw,2.3rem)",
+              fontWeight:400, color:"#f5f0e8" }}>
+              저희는 쇼핑몰이 아닙니다
+            </h2>
+          </FadeUp>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"1px",
+            background:"rgba(201,169,110,0.07)" }}>
+            {[
+              { t:"제품을 재고로 보유하지 않습니다",   d:"모든 제품은 고객 요청 이후 현지 부티크에서 직접 확인 후 구매합니다. 미리 사들여 놓고 파는 구조가 아닙니다." },
+              { t:"불특정 다수에게 노출하지 않습니다", d:"공개 카탈로그나 SNS 판매를 운영하지 않습니다. 문의를 남긴 고객에게만 개별적으로 대응합니다." },
+              { t:"가격을 흥정하지 않습니다",          d:"현지 정가에 투명한 소싱 비용만을 더합니다. 임의로 가격을 올리거나 협상하는 구조가 아닙니다." },
+              { t:"승인 없이 결제를 청구하지 않습니다", d:"고객님이 Private Brief를 확인하고 승인하기 전까지 어떠한 결제도 요청하지 않습니다." },
+              { t:"고객 정보를 공유하지 않습니다",      d:"이름, 연락처, 구매 내역은 전담 컨시어지 외 누구에게도 공개되지 않으며 외부와 공유되지 않습니다." },
+              { t:"대리점·공식 파트너를 사칭하지 않습니다", d:"특정 브랜드의 공식 대리점이 아닌, 고객을 대신해 현지 구매를 연결하는 프라이빗 소싱 컨시어지입니다." },
+            ].map((item, i) => (
+              <FadeUp key={item.t} delay={i * 70}>
+                <div style={{ background:"#0a0a0a", padding:"2.2rem 2rem", height:"100%" }}>
+                  <div style={{ display:"flex", gap:"0.7rem", alignItems:"flex-start", marginBottom:"0.8rem" }}>
+                    <span style={{ color:"rgba(201,169,110,0.5)", fontSize:"0.85rem", flexShrink:0 }}>✕</span>
+                    <div style={{ fontSize:"0.86rem", color:"#f5f0e8", fontFamily:"Georgia,serif", lineHeight:1.5 }}>
+                      {item.t}
+                    </div>
+                  </div>
+                  <p style={{ fontSize:"0.75rem", color:"#555550", lineHeight:1.9, paddingLeft:"1.5rem" }}>
+                    {item.d}
+                  </p>
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Process strip ───────────────────────────────── */}
       <section style={{ background:"#0d0d0b",
         borderTop:"1px solid rgba(201,169,110,0.07)",
@@ -403,6 +475,81 @@ export default function Home() {
           </div>
 
           <ProcessSteps />
+        </div>
+      </section>
+
+      {/* ── VIP Client Room Preview ──────────────────────── */}
+      <section style={{ background:"#0a0a0a", padding:"7rem 2rem" }}>
+        <div style={{ maxWidth:"1100px", margin:"0 auto" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))",
+            gap:"4rem", alignItems:"center" }}>
+
+            {/* 좌측 텍스트 */}
+            <FadeUp>
+              <div style={{ fontSize:"0.56rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"1.5rem" }}>
+                YOUR PRIVATE CLIENT ROOM
+              </div>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(1.7rem,3.8vw,2.5rem)",
+                fontWeight:400, color:"#f5f0e8", lineHeight:1.45, marginBottom:"1.8rem" }}>
+                문의 한 건마다,<br />고객님만의 비공개 룸이 생성됩니다
+              </h2>
+              <p style={{ fontSize:"0.85rem", color:"#666660", lineHeight:2, marginBottom:"2.2rem" }}>
+                위시리스트 진행 상태, 현지 소싱 증빙, 결제 요청 내역까지 — 모든 진행 상황을
+                Request ID와 연락처 뒷자리 4자리만으로 비공개 룸에서 확인하실 수 있습니다.
+                별도 회원가입이나 앱 설치는 필요하지 않습니다.
+              </p>
+              <Link href="/track" style={{ textDecoration:"none", display:"inline-block",
+                border:"1px solid rgba(201,169,110,0.35)", color:"#c9a96e",
+                padding:"0.9rem 2.4rem", fontSize:"0.68rem", letterSpacing:"0.2em" }}>
+                PRIVATE CLIENT ROOM 살펴보기 →
+              </Link>
+            </FadeUp>
+
+            {/* 우측 미니 프리뷰 카드 (예시 데이터) */}
+            <FadeUp delay={120}>
+              <div style={{ background:"#0d0d0b", border:"1px solid rgba(201,169,110,0.15)",
+                padding:"1.8rem 2rem" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
+                  marginBottom:"1.4rem", paddingBottom:"1.2rem",
+                  borderBottom:"1px solid rgba(201,169,110,0.08)" }}>
+                  <span style={{ fontSize:"0.5rem", letterSpacing:"0.32em", color:"rgba(201,169,110,0.7)" }}>
+                    PRIVATE CLIENT ROOM
+                  </span>
+                  <span style={{ fontSize:"0.54rem", padding:"0.15rem 0.55rem",
+                    border:"1px solid rgba(201,169,110,0.3)", color:"#c9a96e" }}>◆ INVITED</span>
+                </div>
+
+                <div style={{ fontSize:"0.52rem", letterSpacing:"0.2em", color:"#333330", marginBottom:"0.3rem" }}>
+                  EXAMPLE · 예시 화면
+                </div>
+                <div style={{ fontFamily:"Georgia,serif", fontSize:"1rem", color:"#f5f0e8", marginBottom:"1.2rem" }}>
+                  Hermès — Birkin 30
+                </div>
+
+                <div style={{ display:"grid", gap:"0.5rem", marginBottom:"1.2rem" }}>
+                  {[
+                    ["European Availability Check", "completed"],
+                    ["Cost Estimate Prepared",       "completed"],
+                    ["Inspection Photos",            "in_progress"],
+                  ].map(([label, status]) => (
+                    <div key={label} style={{ display:"flex", justifyContent:"space-between",
+                      alignItems:"center", fontSize:"0.68rem" }}>
+                      <span style={{ color: status==="completed" ? "#888880" : "#c9a96e" }}>{label}</span>
+                      <span style={{ color: status==="completed" ? "#88cc88" : "#c9a96e", fontSize:"0.8rem" }}>
+                        {status==="completed" ? "●" : "◑"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ padding:"0.7rem 0.9rem", background:"rgba(201,169,110,0.05)",
+                  border:"1px solid rgba(201,169,110,0.1)" }}>
+                  <span style={{ fontSize:"0.6rem", color:"#888880" }}>결제 요청 상태 — </span>
+                  <span style={{ fontSize:"0.6rem", color:"#c9a96e" }}>승인 대기 중</span>
+                </div>
+              </div>
+            </FadeUp>
+          </div>
         </div>
       </section>
 
