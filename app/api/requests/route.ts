@@ -47,21 +47,27 @@ export async function POST(req: NextRequest) {
       console.error("[MAISON PRIVÉ] 알림 발송 오류:", e)
     );
 
-    // VIP 선호도 + 위시리스트 + 소싱 증빙 초기화 (실패해도 문의 접수는 성공 처리)
-    Promise.all([
-      body.preferences
-        ? upsertClientPreferences(request.id, body.preferences)
-        : Promise.resolve(),
-      Array.isArray(body.wishlist_items) && body.wishlist_items.length > 0
-        ? createWishlistItems(
-            request.id,
-            body.wishlist_items.filter((w: { brand?: string; product_name?: string }) =>
-              w.brand?.trim() && w.product_name?.trim()
+    // VIP 선호도 + 위시리스트 + 소싱 증빙 저장 — 선택 사항.
+    // 관련 테이블이 아직 없거나(DB migration 보류 중) 저장이 실패해도
+    // 기본 문의 접수(luxury_requests)는 절대 실패하지 않아야 한다.
+    try {
+      await Promise.all([
+        body.preferences
+          ? upsertClientPreferences(request.id, body.preferences)
+          : Promise.resolve(),
+        Array.isArray(body.wishlist_items) && body.wishlist_items.length > 0
+          ? createWishlistItems(
+              request.id,
+              body.wishlist_items.filter((w: { brand?: string; product_name?: string }) =>
+                w.brand?.trim() && w.product_name?.trim()
+              )
             )
-          )
-        : Promise.resolve(),
-      ensureSourcingEvidence(request.id),
-    ]).catch(e => console.error("[MAISON PRIVÉ] VIP 데이터 저장 오류:", e));
+          : Promise.resolve(),
+        ensureSourcingEvidence(request.id),
+      ]);
+    } catch (e) {
+      console.error("[MAISON PRIVÉ] VIP 데이터 저장 실패 (문의 접수는 정상 처리됨):", e);
+    }
 
     return NextResponse.json({ success: true, id: request.id }, { status: 201 });
   } catch (err) {
