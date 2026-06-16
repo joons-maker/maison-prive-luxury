@@ -393,9 +393,13 @@ export default function Home() {
               HOW IT WORKS
             </div>
             <h2 style={{ fontFamily:"Georgia,serif",
-              fontSize:"clamp(1.8rem,4vw,2.8rem)", fontWeight:400, color:"#f5f0e8" }}>
+              fontSize:"clamp(1.8rem,4vw,2.8rem)", fontWeight:400, color:"#f5f0e8", marginBottom:"1.2rem" }}>
               A Seamless Experience
             </h2>
+            <p style={{ fontSize:"0.8rem", color:"#555550", lineHeight:1.9, maxWidth:"480px", margin:"0 auto" }}>
+              고객 승인 전까지 비용은 발생하지 않습니다.<br />
+              문의 접수부터 결제 요청, 배송까지 모든 단계를 투명하게 안내드립니다.
+            </p>
           </div>
 
           <ProcessSteps />
