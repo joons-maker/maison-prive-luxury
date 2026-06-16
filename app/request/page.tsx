@@ -26,18 +26,65 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return <div><label style={lbl}>{label}</label>{children}</div>;
 }
 
-function SecHead({ num, title, sub }: { num: string; title: string; sub: string }) {
+function SecHead({ num, title, sub, tag }: { num: string; title: string; sub: string; tag?: "REQUIRED"|"OPTIONAL" }) {
   return (
     <div style={{ marginBottom:"2.5rem" }}>
-      <div style={{ display:"flex", alignItems:"center", gap:"1rem", marginBottom:"0.5rem" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:"1rem", marginBottom:"0.5rem", flexWrap:"wrap" }}>
         <span style={{ fontFamily:"Georgia,serif", fontSize:"1.8rem",
           color:"rgba(201,169,110,0.15)", lineHeight:1 }}>{num}</span>
-        <div>
-          <div style={{ fontSize:"0.6rem", letterSpacing:"0.28em", color:"#c9a96e" }}>{title}</div>
+        <div style={{ flex:1 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.7rem", flexWrap:"wrap" }}>
+            <div style={{ fontSize:"0.6rem", letterSpacing:"0.28em", color:"#c9a96e" }}>{title}</div>
+            {tag && (
+              <span style={{ fontSize:"0.5rem", letterSpacing:"0.14em",
+                padding:"0.1rem 0.45rem",
+                color: tag==="REQUIRED" ? "#c9a96e" : "#555550",
+                border:`1px solid ${tag==="REQUIRED" ? "rgba(201,169,110,0.35)" : "rgba(80,80,75,0.3)"}`,
+              }}>{tag}</span>
+            )}
+          </div>
           <div style={{ fontSize:"0.75rem", color:"#444440", marginTop:"2px" }}>{sub}</div>
         </div>
       </div>
       <div style={{ height:"1px", background:"linear-gradient(to right,rgba(201,169,110,0.15),transparent)" }} />
+    </div>
+  );
+}
+
+/* ── 접을 수 있는 선택 입력 섹션 (VIP 부담 완화) ── */
+function Collapsible({ num, title, sub, badge, children }: {
+  num: string; title: string; sub: string; badge: string; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="lux-form-section">
+      <button type="button" onClick={() => setOpen(o => !o)}
+        style={{ width:"100%", background:"none", border:"none", cursor:"pointer",
+          textAlign:"left", padding:0, display:"flex", justifyContent:"space-between",
+          alignItems:"center", gap:"1rem" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"1rem", flex:1, minWidth:0 }}>
+          <span style={{ fontFamily:"Georgia,serif", fontSize:"1.8rem",
+            color:"rgba(201,169,110,0.15)", lineHeight:1, flexShrink:0 }}>{num}</span>
+          <div style={{ minWidth:0 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:"0.7rem", flexWrap:"wrap" }}>
+              <div style={{ fontSize:"0.6rem", letterSpacing:"0.28em", color:"#c9a96e" }}>{title}</div>
+              <span style={{ fontSize:"0.5rem", letterSpacing:"0.14em", padding:"0.1rem 0.45rem",
+                color:"#555550", border:"1px solid rgba(80,80,75,0.3)" }}>{badge}</span>
+            </div>
+            <div style={{ fontSize:"0.75rem", color:"#444440", marginTop:"2px" }}>{sub}</div>
+          </div>
+        </div>
+        <span style={{ color:"#c9a96e", fontSize:"1rem", flexShrink:0,
+          transform: open ? "rotate(45deg)" : "none", transition:"transform 0.3s" }}>+</span>
+      </button>
+      <div style={{ height:"1px", background:"linear-gradient(to right,rgba(201,169,110,0.15),transparent)", margin:"1.2rem 0" }} />
+      {open ? (
+        <div style={{ animation:"fadeInCard 0.35s ease" }}>{children}</div>
+      ) : (
+        <p style={{ fontSize:"0.7rem", color:"#333330", lineHeight:1.85 }}>
+          작성하지 않아도 문의가 가능합니다. 더 정확한 소싱을 원하시면 펼쳐서 입력해주세요.
+        </p>
+      )}
     </div>
   );
 }
@@ -278,15 +325,16 @@ export default function RequestPage() {
           pointerEvents:"none" }} />
         <div style={{ position:"relative" }}>
           <div style={{ fontSize:"0.57rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"1.5rem" }}>
-            VIP REQUEST
+            PRIVATE CONSULTATION
           </div>
           <h1 style={{ fontFamily:"Georgia,serif",
             fontSize:"clamp(2rem,4.5vw,3.2rem)", fontWeight:400, color:"#f5f0e8", marginBottom:"1.5rem" }}>
-            Private Inquiry Form
+            Begin a Private Request
           </h1>
           <p style={{ fontSize:"0.87rem", color:"#555550", lineHeight:1.95,
             maxWidth:"480px", margin:"0 auto 1rem" }}>
-            원하시는 제품을 조용히 알려주세요.<br />모든 정보는 철저히 비공개로 관리됩니다.
+            가벼운 상담이라도 괜찮습니다. 원하시는 제품을 편하게 알려주세요.<br />
+            모든 정보는 철저히 비공개로 관리됩니다.
           </p>
           <div style={{ display:"flex", gap:"6px", justifyContent:"center", alignItems:"center", marginTop:"3rem" }}>
             <div style={{ flex:1, maxWidth:"60px", height:"1px",
@@ -299,50 +347,7 @@ export default function RequestPage() {
         </div>
       </section>
 
-      {/* ── Process Disclaimer ───────────────────────── */}
-      <FadeUp style={{ maxWidth:"760px", margin:"0 auto 2rem", padding:"0 2rem" }}>
-        <div style={{ background:"#090907", border:"1px solid rgba(201,169,110,0.07)",
-          padding:"2rem 2.5rem" }}>
-          <div style={{ fontSize:"0.55rem", letterSpacing:"0.36em", color:"rgba(201,169,110,0.5)",
-            marginBottom:"1.4rem" }}>HOW IT WORKS — OPERATIONAL FLOW</div>
-          <div style={{ display:"flex", gap:"0 1rem", flexWrap:"wrap" }}>
-            {[
-              { n:"01", t:"Private Request",  ko:"비공개 문의 접수" },
-              { n:"02", t:"European Check",   ko:"현지 재고 확인" },
-              { n:"03", t:"Private Brief",    ko:"견적서 발송" },
-              { n:"04", t:"Client Approval",  ko:"고객 승인" },
-              { n:"05", t:"Payment Request",  ko:"결제 요청서 발행" },
-              { n:"06", t:"Purchase",         ko:"현지 부티크 구매" },
-              { n:"07", t:"Delivery",         ko:"국제 특송 발송" },
-            ].map((s, i, arr) => (
-              <div key={s.n} style={{ display:"flex", alignItems:"center", gap:"0.5rem",
-                marginBottom:"0.3rem" }}>
-                <span style={{ fontSize:"0.55rem", color:"rgba(201,169,110,0.35)",
-                  fontFamily:"Georgia,serif" }}>{s.n}</span>
-                <span style={{ fontSize:"0.62rem", color:"#3a3a35", letterSpacing:"0.06em" }}>{s.ko}</span>
-                {i < arr.length - 1 && (
-                  <span style={{ fontSize:"0.55rem", color:"rgba(201,169,110,0.15)", margin:"0 0.1rem" }}>›</span>
-                )}
-              </div>
-            ))}
-          </div>
-          <div style={{ height:"1px", background:"rgba(201,169,110,0.06)", margin:"1.4rem 0 1.2rem" }} />
-          <ul style={{ listStyle:"none", display:"grid", gap:"0.55rem" }}>
-            {[
-              "본 문의는 소싱 진행 의사 확인을 위한 것이며, 문의 접수만으로 구매가 확정되지 않습니다.",
-              "현지 재고 및 가격은 변동될 수 있으며, Private Brief 발송 후 고객 승인을 받아 진행합니다.",
-              "결제는 고객 승인 이후 발행되는 결제 요청서에 따라 진행됩니다.",
-            ].map((t, i) => (
-              <li key={i} style={{ display:"flex", gap:"0.65rem", alignItems:"flex-start" }}>
-                <span style={{ color:"rgba(201,169,110,0.3)", fontSize:"0.6rem", marginTop:"1px", flexShrink:0 }}>◈</span>
-                <span style={{ fontSize:"0.72rem", color:"#333330", lineHeight:1.85 }}>{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </FadeUp>
-
-      {/* ── Concierge Promise ─────────────────────────── */}
+      {/* ── Before You Request ─────────────────────────── */}
       <FadeUp style={{ maxWidth:"760px", margin:"0 auto 3rem", padding:"0 2rem" }}>
         <div style={{ border:"1px solid rgba(201,169,110,0.1)", background:"#0d0d0b",
           padding:"2.5rem 3rem", position:"relative" }}>
@@ -356,23 +361,28 @@ export default function RequestPage() {
               left: i%2===0?"-1px":"auto", right: i%2===1?"-1px":"auto",
             }} />
           ))}
-          <div style={{ fontSize:"0.56rem", letterSpacing:"0.36em", color:"#c9a96e", marginBottom:"1.8rem" }}>
-            CONCIERGE PROMISE
+          <div style={{ fontSize:"0.56rem", letterSpacing:"0.36em", color:"#c9a96e", marginBottom:"1.6rem" }}>
+            BEFORE YOU REQUEST
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:"2rem" }}>
+          <p style={{ fontSize:"0.8rem", color:"#666660", lineHeight:1.95, marginBottom:"1.8rem" }}>
+            이 문의는 구매를 확정하는 것이 아니라, 상담을 시작하는 것입니다.
+            현지 재고를 확인한 후 Private Brief를 보내드리며, 고객님이 승인하고
+            결제를 확인한 다음에만 구매가 진행됩니다.
+          </p>
+          <div style={{ height:"1px", background:"rgba(201,169,110,0.07)", margin:"0 0 1.8rem" }} />
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:"1.6rem" }}>
             {[
-              { symbol:"◈", title:"Fully Private",   desc:"모든 문의는 외부에 공개되지 않으며, 담당 컨시어지만 열람합니다." },
-              { symbol:"◇", title:"Direct Boutique",  desc:"에이전시가 아닌 현지 공식 부티크를 직접 방문합니다." },
-              { symbol:"◉", title:"Transparent Cost", desc:"현지 구매가, 관세, 배송비를 포함한 투명한 견적을 제공합니다." },
-              { symbol:"✦", title:"No Upfront Fee",   desc:"소싱 확인 전까지 비용이 발생하지 않습니다." },
+              { symbol:"◈", title:"Fully Private",   desc:"담당 컨시어지만 열람합니다" },
+              { symbol:"◇", title:"Direct Boutique",  desc:"현지 공식 부티크 직접 구매" },
+              { symbol:"✦", title:"No Upfront Fee",   desc:"승인 전 비용 없음" },
             ].map(p => (
-              <div key={p.title} style={{ display:"flex", gap:"0.8rem" }}>
-                <span style={{ color:"rgba(201,169,110,0.45)", fontSize:"0.75rem", flexShrink:0, marginTop:"1px" }}>{p.symbol}</span>
+              <div key={p.title} style={{ display:"flex", gap:"0.7rem" }}>
+                <span style={{ color:"rgba(201,169,110,0.45)", fontSize:"0.72rem", flexShrink:0, marginTop:"1px" }}>{p.symbol}</span>
                 <div>
-                  <div style={{ fontSize:"0.58rem", letterSpacing:"0.16em", color:"#c9a96e", marginBottom:"0.45rem" }}>
+                  <div style={{ fontSize:"0.58rem", letterSpacing:"0.14em", color:"#c9a96e", marginBottom:"0.3rem" }}>
                     {p.title.toUpperCase()}
                   </div>
-                  <p style={{ fontSize:"0.74rem", color:"#3a3a35", lineHeight:1.9 }}>{p.desc}</p>
+                  <p style={{ fontSize:"0.7rem", color:"#3a3a35", lineHeight:1.7 }}>{p.desc}</p>
                 </div>
               </div>
             ))}
@@ -389,7 +399,20 @@ export default function RequestPage() {
           </div>
         )}
 
-        <form onSubmit={onSubmit}>
+        {/* ── VIP Request Card 헤더 ── */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+          padding:"1.2rem 1.8rem", border:"1px solid rgba(201,169,110,0.18)",
+          borderBottom:"none", background:"#0d0d0b" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.7rem" }}>
+            <div style={{ width:"5px", height:"5px", background:"#c9a96e", transform:"rotate(45deg)" }} />
+            <span style={{ fontSize:"0.56rem", letterSpacing:"0.3em", color:"#c9a96e" }}>
+              PRIVATE REQUEST CARD
+            </span>
+          </div>
+          <span style={{ fontSize:"0.6rem", color:"#333330" }}>* 필수 항목</span>
+        </div>
+
+        <form onSubmit={onSubmit} style={{ border:"1px solid rgba(201,169,110,0.18)", padding:"2.2rem" }}>
           {/* honeypot */}
           <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none" }} aria-hidden="true">
             <input name="_hp" value={form._hp} onChange={set} tabIndex={-1} autoComplete="off" />
@@ -427,7 +450,7 @@ export default function RequestPage() {
 
           {/* 01 · Contact */}
           <div className="lux-form-section">
-            <SecHead num="01" title="CONTACT INFORMATION" sub="연락처 정보" />
+            <SecHead num="01" title="CONTACT INFORMATION" sub="연락처 정보" tag="REQUIRED" />
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem" }}>
               <Field label="성함 *">
                 <input className="lux-input" style={inp} name="name" value={form.name} onChange={set} required placeholder="홍길동" />
@@ -446,7 +469,7 @@ export default function RequestPage() {
 
           {/* 02 · Product */}
           <div className="lux-form-section">
-            <SecHead num="02" title="PRODUCT DETAILS" sub="희망 제품 정보" />
+            <SecHead num="02" title="PRODUCT DETAILS" sub="희망 제품 정보" tag="REQUIRED" />
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem", marginBottom:"1.2rem" }}>
               <Field label="희망 브랜드 *">
                 <input className="lux-input" style={inp} name="brand" value={form.brand} onChange={set} required placeholder="예: Hermès" />
@@ -513,7 +536,7 @@ export default function RequestPage() {
 
           {/* 03 · Preferences */}
           <div className="lux-form-section">
-            <SecHead num="03" title="PREFERENCES" sub="소싱 선호 사항" />
+            <SecHead num="03" title="PREFERENCES" sub="소싱 선호 사항" tag="OPTIONAL" />
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem" }}>
               <Field label="희망 소싱 국가">
                 <div style={{ position:"relative" }}>
@@ -550,7 +573,7 @@ export default function RequestPage() {
 
           {/* 04 · Message */}
           <div className="lux-form-section">
-            <SecHead num="04" title="REQUEST MESSAGE" sub="추가 요청 사항" />
+            <SecHead num="04" title="REQUEST MESSAGE" sub="추가 요청 사항" tag="OPTIONAL" />
             <Field label="요청 내용">
               <textarea className="lux-input"
                 style={{ ...inp, resize:"vertical", minHeight:"140px" }}
@@ -559,16 +582,8 @@ export default function RequestPage() {
             </Field>
           </div>
 
-          {/* ── 05 · VIP PREFERENCE PROFILE ────────────────── */}
-          <div className="lux-form-section">
-            <SecHead num="05" title="VIP PREFERENCE PROFILE" sub="선호 정보 · 선택 사항" />
-            <div style={{ padding:"0.8rem 1.2rem", background:"rgba(201,169,110,0.03)",
-              border:"1px solid rgba(201,169,110,0.08)", marginBottom:"1.8rem" }}>
-              <p style={{ fontSize:"0.68rem", color:"#333330", lineHeight:1.85 }}>
-                선호 정보를 입력하시면 더욱 정확한 소싱 서비스를 제공드릴 수 있습니다. 모든 항목은 선택 사항입니다.
-              </p>
-            </div>
-
+          {/* ── 05 · VIP PREFERENCE PROFILE (접힘) ─────────── */}
+          <Collapsible num="05" title="VIP PREFERENCE PROFILE" sub="선호 정보를 더 입력하시면 소싱이 더 정확해집니다" badge="OPTIONAL">
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:"1.2rem", marginBottom:"1.2rem" }}>
               <Field label="선호 브랜드 (복수 입력 가능)">
                 <input className="lux-input" style={inp} value={prefs.preferred_brands}
@@ -641,19 +656,10 @@ export default function RequestPage() {
                 </div>
               </Field>
             </div>
-          </div>
+          </Collapsible>
 
-          {/* ── 06 · PRIVATE WISHLIST ───────────────────────── */}
-          <div className="lux-form-section">
-            <SecHead num="06" title="PRIVATE WISHLIST" sub="희망 제품 목록 · 최대 3개 · 선택 사항" />
-            <div style={{ padding:"0.8rem 1.2rem", background:"rgba(201,169,110,0.03)",
-              border:"1px solid rgba(201,169,110,0.08)", marginBottom:"1.8rem" }}>
-              <p style={{ fontSize:"0.68rem", color:"#333330", lineHeight:1.85 }}>
-                이번 문의 제품 외에 관심 있으신 제품을 최대 3개까지 등록하실 수 있습니다.
-                등록된 제품은 담당 컨시어지가 현지 확인 시 함께 체크해 드립니다.
-              </p>
-            </div>
-
+          {/* ── 06 · PRIVATE WISHLIST (접힘) ────────────────── */}
+          <Collapsible num="06" title="PRIVATE WISHLIST" sub="관심 제품을 최대 3개까지 미리 등록할 수 있습니다" badge="OPTIONAL">
             <div style={{ display:"grid", gap:"1.2rem" }}>
               {wishlist.map((item, idx) => (
                 <div key={idx} style={{
@@ -692,10 +698,30 @@ export default function RequestPage() {
                 </div>
               ))}
             </div>
+          </Collapsible>
+
+          {/* ── 제출 전 마지막 안내 ── */}
+          <div style={{ marginTop:"2.5rem", padding:"1.4rem 1.6rem",
+            background:"rgba(201,169,110,0.03)", border:"1px solid rgba(201,169,110,0.1)" }}>
+            <div style={{ fontSize:"0.54rem", letterSpacing:"0.22em", color:"#c9a96e", marginBottom:"0.9rem" }}>
+              제출 전 확인해 주세요
+            </div>
+            <ul style={{ listStyle:"none", display:"grid", gap:"0.5rem" }}>
+              {[
+                "문의만으로 구매가 확정되지 않습니다.",
+                "현지 확인 후 Private Brief(견적)를 보내드립니다.",
+                "승인 및 결제 확인 후에만 구매가 진행됩니다.",
+              ].map((t, i) => (
+                <li key={i} style={{ display:"flex", gap:"0.6rem", alignItems:"flex-start" }}>
+                  <span style={{ color:"rgba(201,169,110,0.4)", fontSize:"0.6rem", marginTop:"2px", flexShrink:0 }}>◈</span>
+                  <span style={{ fontSize:"0.74rem", color:"#555550", lineHeight:1.7 }}>{t}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Privacy & submit */}
-          <div style={{ padding:"2.5rem 0" }}>
+          <div style={{ padding:"2rem 0 2.5rem" }}>
             <label style={{ display:"flex", alignItems:"flex-start", gap:"0.85rem",
               cursor:"pointer", fontSize:"0.77rem", color:"#444440", lineHeight:1.85 }}>
               <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
@@ -716,8 +742,11 @@ export default function RequestPage() {
               letterSpacing:"0.28em", fontWeight:700,
               cursor: state==="submitting" ? "not-allowed" : "pointer",
               transition:"background 0.3s" }}>
-            {state === "submitting" ? "처리 중..." : "VIP REQUEST 제출하기"}
+            {state === "submitting" ? "처리 중..." : "SUBMIT PRIVATE REQUEST"}
           </button>
+          <p style={{ textAlign:"center", fontSize:"0.65rem", color:"#2a2a25", marginTop:"0.8rem" }}>
+            제출 후에도 승인 전까지는 어떠한 비용도 발생하지 않습니다.
+          </p>
         </form>
 
         <p style={{ textAlign:"center", fontSize:"0.68rem", color:"#222220",
