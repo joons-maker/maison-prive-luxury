@@ -454,6 +454,43 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── A Note from Maison Privé ─────────────────────── */}
+      <section style={{ background:"#0a0a0a", padding:"7rem 2rem",
+        borderBottom:"1px solid rgba(201,169,110,0.07)" }}>
+        <FadeUp style={{ maxWidth:"640px", margin:"0 auto" }}>
+          <div style={{ fontSize:"0.54rem", letterSpacing:"0.42em", color:"#c9a96e",
+            textAlign:"center", marginBottom:"2.5rem" }}>
+            A NOTE FROM MAISON PRIVÉ
+          </div>
+          <div style={{ border:"1px solid rgba(201,169,110,0.1)", background:"#0d0d0b",
+            padding:"2.8rem 3rem" }}>
+            <p style={{ fontSize:"0.86rem", color:"#888880", lineHeight:2.1, marginBottom:"1.6rem",
+              fontFamily:"Georgia,serif" }}>
+              MAISON PRIVÉ는 공개된 쇼핑몰이 아닙니다.
+            </p>
+            <p style={{ fontSize:"0.8rem", color:"#555550", lineHeight:2, marginBottom:"1.3rem" }}>
+              저희는 고객님의 승인 전에 제품을 미리 구매하지 않습니다. 출처가 불명확하거나
+              검증되지 않은 경로의 제품은 진행하지 않으며, 모든 구매는 현지 공식 부티크를
+              직접 방문하여 확인한 후에만 이루어집니다.
+            </p>
+            <p style={{ fontSize:"0.8rem", color:"#555550", lineHeight:2, marginBottom:"1.3rem" }}>
+              소싱 비용, 관세, 부가세 등 발생 가능한 모든 비용은 결제 요청 이전 단계에서
+              투명하게 안내드립니다. 안내드리지 않은 비용이 결제 이후 추가되는 일은 없습니다.
+            </p>
+            <p style={{ fontSize:"0.8rem", color:"#555550", lineHeight:2 }}>
+              저희는 특정 브랜드의 공식 대리점이나 공식 파트너가 아닙니다. 고객님을 대신해
+              유럽 현지에서 제품을 확인하고 구매를 연결해 드리는 프라이빗 소싱 컨시어지입니다.
+            </p>
+            <div style={{ width:"32px", height:"1px", background:"rgba(201,169,110,0.25)",
+              margin:"2rem 0 1.2rem" }} />
+            <div style={{ fontFamily:"Georgia,serif", fontSize:"0.8rem", color:"#c9a96e",
+              letterSpacing:"0.04em" }}>
+              MAISON PRIVÉ Concierge
+            </div>
+          </div>
+        </FadeUp>
+      </section>
+
       {/* ── Process strip ───────────────────────────────── */}
       <section style={{ background:"#0d0d0b",
         borderTop:"1px solid rgba(201,169,110,0.07)",
@@ -549,6 +586,105 @@ export default function Home() {
                 </div>
               </div>
             </FadeUp>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Sample Private Brief ─────────────────────────── */}
+      <section style={{ background:"#0d0d0b", padding:"7rem 2rem",
+        borderTop:"1px solid rgba(201,169,110,0.07)", borderBottom:"1px solid rgba(201,169,110,0.07)" }}>
+        <div style={{ maxWidth:"680px", margin:"0 auto" }}>
+          <FadeUp style={{ textAlign:"center", marginBottom:"3.5rem" }}>
+            <div style={{ fontSize:"0.56rem", letterSpacing:"0.48em", color:"#c9a96e", marginBottom:"1.5rem" }}>
+              SAMPLE PRIVATE BRIEF
+            </div>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(1.6rem,3.5vw,2.2rem)",
+              fontWeight:400, color:"#f5f0e8", marginBottom:"1rem" }}>
+              문의 후 받게 될 브리프의 예시입니다
+            </h2>
+            <p style={{ fontSize:"0.8rem", color:"#555550" }}>
+              실제 고객 정보가 아닌 예시 화면입니다.
+            </p>
+          </FadeUp>
+
+          <FadeUp delay={100}>
+            <div style={{ background:"#0a0a08", border:"1px solid rgba(201,169,110,0.18)",
+              padding:"2.6rem 2.8rem", position:"relative" }}>
+              {[0,1,2,3].map(i => (
+                <div key={i} style={{
+                  position:"absolute", width:"14px", height:"14px",
+                  borderColor:"rgba(201,169,110,0.3)", borderStyle:"solid",
+                  borderWidth: i===0?"1px 0 0 1px":i===1?"1px 1px 0 0":i===2?"0 0 1px 1px":"0 1px 1px 0",
+                  top: i<2?"-1px":"auto", bottom: i>=2?"-1px":"auto",
+                  left: i%2===0?"-1px":"auto", right: i%2===1?"-1px":"auto",
+                }} />
+              ))}
+
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start",
+                marginBottom:"1.8rem", paddingBottom:"1.4rem",
+                borderBottom:"1px solid rgba(201,169,110,0.1)" }}>
+                <div>
+                  <div style={{ fontSize:"0.5rem", letterSpacing:"0.25em", color:"#333330", marginBottom:"0.3rem" }}>REF</div>
+                  <div style={{ fontFamily:"monospace", fontSize:"0.72rem", color:"#666660" }}>MP-EXAMPLE-0000</div>
+                </div>
+                <span style={{ fontSize:"0.54rem", padding:"0.15rem 0.6rem",
+                  border:"1px solid rgba(201,169,110,0.35)", color:"#c9a96e", letterSpacing:"0.1em" }}>
+                  EXAMPLE
+                </span>
+              </div>
+
+              <div style={{ display:"grid", gap:"1rem" }}>
+                {[
+                  ["Requested Item",            "Hermès — Birkin 30, Togo Leather"],
+                  ["European Availability",     "파리 부티크 확인 완료 · 재고 보유"],
+                  ["Estimated Sourcing Range",  "€9,500 – €10,200 (소싱비·배송비 별도 안내)"],
+                  ["Receipt Availability",      "현지 공식 영수증 + 정품 보증서 제공 가능"],
+                  ["Customs & Tax Notice",      "관세·부가세는 통관 조건에 따라 별도 산정, 결제 전 고지"],
+                  ["Payment Status",            "고객 승인 대기 중 — 결제 요청 미발행"],
+                  ["Next Step",                 "승인 시 결제 요청서 발행 → 입금 확인 → 현지 구매 진행"],
+                ].map(([label, value]) => (
+                  <div key={label} style={{ display:"grid", gridTemplateColumns:"160px 1fr",
+                    gap:"1rem", paddingBottom:"0.85rem",
+                    borderBottom:"1px solid rgba(201,169,110,0.05)" }}>
+                    <div style={{ fontSize:"0.62rem", letterSpacing:"0.06em", color:"#444440" }}>{label}</div>
+                    <div style={{ fontSize:"0.76rem", color:"#888880", lineHeight:1.7 }}>{value}</div>
+                  </div>
+                ))}
+              </div>
+
+              <p style={{ fontSize:"0.62rem", color:"#2a2a25", marginTop:"1.6rem", lineHeight:1.8 }}>
+                * 실제 브리프는 문의하신 제품과 현지 확인 결과에 따라 구성이 달라질 수 있습니다.
+              </p>
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* ── Contact Confidence ───────────────────────────── */}
+      <section style={{ background:"#0a0a0a", padding:"6rem 2rem" }}>
+        <div style={{ maxWidth:"900px", margin:"0 auto" }}>
+          <FadeUp style={{ textAlign:"center", marginBottom:"3.5rem" }}>
+            <div style={{ fontSize:"0.56rem", letterSpacing:"0.48em", color:"#c9a96e" }}>
+              BEFORE YOU REACH OUT
+            </div>
+          </FadeUp>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:"2rem" }}>
+            {[
+              { symbol:"◈", title:"Private Request Only",  desc:"공개 채팅이나 댓글로 응대하지 않습니다. 모든 상담은 1:1 비공개 문의로만 진행됩니다." },
+              { symbol:"◇", title:"24-Hour Response Goal",  desc:"일반적으로 영업일 기준 24시간 이내 회신을 목표로 합니다. 문의량에 따라 다소 지연될 수 있습니다." },
+              { symbol:"✦", title:"KakaoTalk & Email Ready", desc:"문의 접수 후 카카오톡 또는 이메일로 담당 컨시어지가 안내드립니다. Private consultation available after request." },
+            ].map((c, i) => (
+              <FadeUp key={c.title} delay={i * 90}>
+                <div style={{ textAlign:"center", padding:"2rem 1.5rem",
+                  border:"1px solid rgba(201,169,110,0.08)", background:"#0d0d0b", height:"100%" }}>
+                  <div style={{ color:"rgba(201,169,110,0.5)", fontSize:"1.1rem", marginBottom:"1rem" }}>{c.symbol}</div>
+                  <div style={{ fontSize:"0.66rem", letterSpacing:"0.14em", color:"#c9a96e", marginBottom:"0.8rem" }}>
+                    {c.title.toUpperCase()}
+                  </div>
+                  <p style={{ fontSize:"0.76rem", color:"#555550", lineHeight:1.9 }}>{c.desc}</p>
+                </div>
+              </FadeUp>
+            ))}
           </div>
         </div>
       </section>
